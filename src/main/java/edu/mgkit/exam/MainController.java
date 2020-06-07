@@ -80,13 +80,6 @@ private Operator find(ArrayList<Operator> op, String name)
                         butt.setOperator(find(new_operators,name));
                         img1.setImage(new Image(butt.getOperator().getImage()));
                         System.out.println(butt.getOperator().getImage());
-                        butt.setOnAction(actionEvent1 -> {
-                            try {
-                                butt.getOperator().aut(mainStage);
-                            } catch (IOException e) {
-                                e.printStackTrace();
-                            }
-                        });
                         modulePane.getChildren().add(butt);
                 }
             }
@@ -152,7 +145,8 @@ private Operator find(ArrayList<Operator> op, String name)
         Comparer comp = new Comparer();
         ArrayList<Operator> actionable = new ArrayList<>();
         for (Operator a:operators)
-            if (a.getAuthorized() && a!=target) actionable.add(a);
+            if (a.getAuthorized()||!a.getRequired()) actionable.add(a);
+            actionable.remove(target);
         exec.setAccess(target);
         int k = exec.executeRequest(target,"GET",0,"");
         if (k==1)

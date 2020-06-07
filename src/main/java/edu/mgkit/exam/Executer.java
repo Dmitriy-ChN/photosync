@@ -19,9 +19,9 @@ import java.util.ArrayList;
 import java.util.Map;
 
 public class Executer {
-    Map<String, String> required_results = Map.of();
+    static Map<String, String> required_results = Map.of();
     String last;
-    CloseableHttpClient httpClient = HttpClients.createDefault();
+    static CloseableHttpClient httpClient = HttpClients.createDefault();
     HttpGet httpGet;
     HttpPost httpPost;
     StringBuilder url = new StringBuilder();

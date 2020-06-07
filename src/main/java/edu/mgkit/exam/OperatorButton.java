@@ -3,6 +3,7 @@ package edu.mgkit.exam;
 import javafx.scene.control.Button;
 import javafx.scene.image.*;
 import javafx.scene.paint.Color;
+import javafx.stage.Stage;
 
 public class OperatorButton extends Button {
 
@@ -16,7 +17,7 @@ public class OperatorButton extends Button {
     {
         this.operator = op;
         ImageView icon = new ImageView(new Image(operator.getImage(),40,40,false,false));
-        if (!op.getAuthorized()) {
+        if (op.getRequired()) {
 
             PixelReader pxl = icon.getImage().getPixelReader();
             WritableImage img2 = new WritableImage((int)icon.getImage().getWidth(),(int)icon.getImage().getHeight());
@@ -29,6 +30,16 @@ public class OperatorButton extends Button {
                 }
             icon.setImage(img2);
         }
+        this.setGraphic(icon);
+        this.setOnAction( eventHandler ->
+        {
+            if (op.getRequired()) op.aut(this);
+        });
+    }
+
+    public void setActive()
+    {
+        ImageView icon = new ImageView(new Image(operator.getImage(),40,40,false,false));
         this.setGraphic(icon);
     }
 }

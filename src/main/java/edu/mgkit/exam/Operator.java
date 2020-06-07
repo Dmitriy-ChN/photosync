@@ -1,10 +1,10 @@
 package edu.mgkit.exam;
 
+import javafx.scene.Scene;
 import javafx.scene.web.WebEngine;
 import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Map;
 
@@ -38,31 +38,34 @@ public class Operator {
         this.result_success = result_success;
     }
 
-    private Map<String,String> access_results = Map.of();
-    private ArrayList<String> photo_links = new ArrayList<>();
+    private static Map<String,String> access_results = Map.of();
+    private static ArrayList<String> photo_links = new ArrayList<>();
 
-    private Boolean isAuthorized = false;
+    private static boolean isAuthorized = false;
 
-    public void aut(Stage st) throws IOException {
-        st.getScene().getRoot().setDisable(true);
+    public void aut(OperatorButton butt) {
+        Stage st = (Stage) butt.getScene().getWindow();
+       st.getScene().getRoot().setDisable(true);
         final WebView view = new WebView();
         final WebEngine engine = view.getEngine();
         engine.load(authorization);
-
-        Stage st2 = App.setScene("choose_service");
+        Stage st2 = new Stage();
+        st2.setScene(new Scene(view));
         st2.setOnCloseRequest(windowEvent -> st.getScene().getRoot().setDisable(false));
-
+        st2.show();
         engine.locationProperty().addListener((observable, oldValue, newValue) -> {
             if(newValue.startsWith(redirect)){
                 for (String a:access_params)
                 {
-                    final int beginIndex = newValue.indexOf(a) + a.length();
+                    final int beginIndex = newValue.indexOf(a) + a.length()+1;
                     String s = newValue.substring(beginIndex,newValue.indexOf('&', beginIndex));
+                    System.out.println(s);
+                    System.out.println(a);
                    access_results.put(a,s);
                 }
-                st2.close();
                 st.getScene().getRoot().setDisable(false);
                 isAuthorized = true;
+                butt.setActive();
             }
         });
     }
@@ -108,11 +111,9 @@ public class Operator {
         this.photo_links = links;
     }
 
-    public Boolean getAuthorized() {
-        if (is_authorization_required)
-        return isAuthorized;
-        return true;
-    }
+    public boolean getAuthorized() { return isAuthorized; }
+
+    public boolean getRequired() { return is_authorization_required;}
 
     public String getSuccess() {return result_success;}
 
