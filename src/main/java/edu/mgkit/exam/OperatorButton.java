@@ -15,15 +15,11 @@ public class OperatorButton extends Button {
     public void setOperator(Operator op)
     {
         this.operator = op;
-        ImageView icon = new ImageView(new Image(operator.getImage()));
-        icon.setFitWidth(40);
-        icon.setFitHeight(40);
-        if (op.getAuthorized())
-        this.setGraphic(icon);
-        else
-        {
+        ImageView icon = new ImageView(new Image(operator.getImage(),40,40,false,false));
+        if (!op.getAuthorized()) {
+
             PixelReader pxl = icon.getImage().getPixelReader();
-            WritableImage img2 = (WritableImage) icon.getImage();
+            WritableImage img2 = new WritableImage((int)icon.getImage().getWidth(),(int)icon.getImage().getHeight());
             PixelWriter pxl2 = img2.getPixelWriter();
             for (int i = 0; i < img2.getWidth(); i++)
                 for (int j = 0; j< img2.getHeight(); j++)
@@ -32,7 +28,7 @@ public class OperatorButton extends Button {
                     pxl2.setColor(i,j,color.grayscale());
                 }
             icon.setImage(img2);
-                this.setGraphic(icon);
         }
+        this.setGraphic(icon);
     }
 }
