@@ -12,26 +12,30 @@ public class Operator {
     private String name;
     private String image;
     private Boolean is_authorization_required;
+    private Boolean has_upload_server;
     private String authorization;
     private String redirect;
     private String[] access_params;
     private Path[] path_to_url;
     private Request[] get_photos;
     private Request[] post_photos;
+    private String result_success;
 
 
-    public Operator(String name, String image, Boolean is_authorization_required, String authorization, String redirect,
-                    String[] access_params, Path[] path_to_url, Request[] get_photos, Request[] post_photos)
-    {
+    public Operator(String name, String image, Boolean is_authorization_required, Boolean has_upload_server,
+                    String authorization, String redirect, String[] access_params, Path[] path_to_url,
+                    Request[] get_photos, Request[] post_photos, String result_success) {
         this.name = name;
         this.image = image;
         this.is_authorization_required = is_authorization_required;
+        this.has_upload_server = has_upload_server;
         this.authorization = authorization;
         this.redirect = redirect;
         this.access_params = access_params;
         this.path_to_url = path_to_url;
         this.get_photos = get_photos;
         this.post_photos = post_photos;
+        this.result_success = result_success;
     }
 
     private Map<String,String> access_results = Map.of();
@@ -108,4 +112,8 @@ public class Operator {
         return isAuthorized;
         return true;
     }
+
+    public String getSuccess() {return result_success;}
+
+    public Boolean hasPost() {return has_upload_server;}
 }

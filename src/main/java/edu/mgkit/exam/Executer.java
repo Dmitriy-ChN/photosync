@@ -48,10 +48,14 @@ public class Executer {
                     links.add(s);
                 }
                 op.setLinks(links);
+                required_results.clear();
                 return 1;
             case "END":
                 System.out.println("Next photo");
-                return 2;
+                String code = required_results.get(last);
+                required_results.clear();
+                if (code==op.getSuccess()) return 1;
+                return -1;
             case "GET":
                 url = new StringBuilder(meth.link);
                 for (String a : meth.required_params) {
@@ -75,7 +79,9 @@ public class Executer {
                 }
                 break;
             case "POST":
+                if (op.hasPost())
                 url = new StringBuilder(meth.link);
+                else url = new StringBuilder(required_results.get(meth.link));
                 for (String a : meth.required_params) {
                     url.append('&');
                     url.append(a);

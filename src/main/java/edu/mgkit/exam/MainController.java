@@ -169,7 +169,7 @@ private Operator find(ArrayList<Operator> op, String name)
                         boolean b = comp.compare(i,images2);
                         if (!b) {
                             k = exec.executeRequest(a,"POST",0,i);
-                        if (k==2) log.getItems().add(new Log(i,"Успешно",target.getName()+" -> "+a.getName()));
+                        if (k==1) log.getItems().add(new Log(i,"Успешно",target.getName()+" -> "+a.getName()));
                         else log.getItems().add(new Log(i,"Ошибка","Не удалось опубликовать изображения с сайта "+target.getName()+" на сайт "+a.getName()));
                         }
                     }
