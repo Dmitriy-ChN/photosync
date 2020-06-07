@@ -8,8 +8,21 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
+import org.apache.commons.io.FileUtils;
+import org.apache.http.HttpEntity;
+import org.apache.http.ParseException;
+import org.apache.http.client.ClientProtocolException;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.entity.mime.MultipartEntityBuilder;
+import org.apache.http.impl.client.CloseableHttpClient;
+import org.apache.http.impl.client.HttpClients;
+import org.apache.http.util.EntityUtils;
 
 import java.io.*;
+import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 public class MainController {
@@ -149,7 +162,7 @@ private Operator find(ArrayList<Operator> op, String name)
         ArrayList<Operator> actionable = new ArrayList<>();
         for (Operator a:operators)
             if (a.getAuthorized()||!a.getRequired()) actionable.add(a);
-            //actionable.remove(target);
+            actionable.remove(target);
         exec.setAccess(target);
         int k = exec.executeRequest(target,"GET",0,"");
         if (k==1)
@@ -157,6 +170,7 @@ private Operator find(ArrayList<Operator> op, String name)
             ArrayList<String> images = target.getLinks();
             for (Operator a:actionable)
             {
+                exec.setAccess(a);
                 k = exec.executeRequest(a,"GET",0,"");
                 if (k==1)
                 {
@@ -192,89 +206,31 @@ private Operator find(ArrayList<Operator> op, String name)
     for (Operator a:operators)
         if (a.getAuthorized()) Synchronization(a,log);
     }
-}
 
 
-/*
+
 
 public void test() {
 
-        CloseableHttpClient httpclient = HttpClients.createDefault();
-        String json = " ";
-        StringBuilder url = new StringBuilder("https://api.vk.com/method/photos.getAll?extended=1&count=3&photo_sizes=1no_service_albums=0&need_hidden=0&pskip_hidden=1&v=5.107&access_token="+token);
-        HttpUriRequest httpGet = new HttpGet(url.toString());
-        try (
-                CloseableHttpResponse response = httpclient.execute(httpGet)
-        ) {
-            HttpEntity entity = response.getEntity();
-            json = EntityUtils.toString(entity);
+    CloseableHttpClient httpclient = HttpClients.createDefault();
+    HttpPost httpPost = new HttpPost("https://postman-echo.com/post");
+    File file = new File("C:\\Users\\Demon\\Pictures\\2.jpg");
+    System.out.println(file.getName());
+    try {
+        MultipartEntityBuilder mpeBuilder = MultipartEntityBuilder.create();
+        mpeBuilder.addBinaryBody("photo", file);
+        httpPost.setEntity(mpeBuilder.build());
+        try {
+            CloseableHttpResponse response2 = httpclient.execute(httpPost);
+            HttpEntity entity2 = response2.getEntity();
+            String json = EntityUtils.toString(entity2);
             System.out.println(json);
-            JsonObject obj = JsonParser.parseString(json).getAsJsonObject();
-            String photo = obj.get("response").getAsJsonObject().get("items").getAsJsonArray().get(0).getAsJsonObject().get("sizes").getAsJsonArray().get(0).getAsJsonObject().get("url").getAsString();
-            url = new StringBuilder("https://api.vk.com/method/photos.getWallUploadServer?v=5.107&access_token="+token);
-            httpGet = new HttpGet(url.toString());
-            CloseableHttpResponse response2 = httpclient.execute(httpGet);
-            entity = response2.getEntity();
-            json = EntityUtils.toString(entity);
-            System.out.println(json);
-            obj = JsonParser.parseString(json).getAsJsonObject();
-            String path = obj.get("response").getAsJsonObject().get("upload_url").getAsString();
-
-            String tDir = System.getProperty("java.io.tmpdir");
-            String path2 = tDir + "tmp" + ".jpg";
-            File file = new File(path2);
-            FileUtils.copyURLToFile(new URL(photo), file);
-            HttpPost httpPost = new HttpPost(path);
-            MultipartEntityBuilder mpeBuilder = MultipartEntityBuilder.create();
-            mpeBuilder.addBinaryBody("photo",file);
-            httpPost.setEntity(mpeBuilder.build());
-            CloseableHttpResponse response3 = httpclient.execute(httpPost);
-            entity = response3.getEntity();
-            json = EntityUtils.toString(entity);
-            System.out.println(json);
-            obj = JsonParser.parseString(json).getAsJsonObject();
-            photo = obj.get("photo").getAsString();
-            System.out.println(photo);
-            //JsonArray arr = JsonParser.parseString(photo).getAsJsonArray();
-            //photo = arr.get(0).getAsJsonObject().get("photo").getAsString();
-            String server = obj.get("server").getAsString();
-            String hash = obj.get("hash").getAsString();
-            System.out.println(photo);
-            System.out.println(server);
-            System.out.println(hash);
-            url = new StringBuilder("https://api.vk.com/method/photos.saveWallPhoto?v=5.107&access_token="+token+"&photo="+ URLEncoder.encode(photo, StandardCharsets.UTF_8)+"&server="+server+"&hash="+hash);
-            httpGet = new HttpGet(url.toString());
-            CloseableHttpResponse response4 = httpclient.execute(httpGet);
-            entity = response4.getEntity();
-            json = EntityUtils.toString(entity);
-            System.out.println(json);
-            obj = JsonParser.parseString(json).getAsJsonObject();
-            photo = "photo"+obj.get("response").getAsJsonArray().get(0).getAsJsonObject().get("owner_id")+"_"+obj.get("response").getAsJsonArray().get(0).getAsJsonObject().get("id").getAsString();
-            url = new StringBuilder("https://api.vk.com/method/wall.post?v=5.107&access_token="+token+"&attachments="+photo);
-            httpGet = new HttpGet(url.toString());
-            CloseableHttpResponse response5 = httpclient.execute(httpGet);
-            entity = response5.getEntity();
-            json = EntityUtils.toString(entity);
-            System.out.println(json);
-            obj = JsonParser.parseString(json).getAsJsonObject();
-            photo = obj.get("response").getAsJsonObject().get("post_id").getAsString();
-            url = new StringBuilder("https://api.vk.com/method/wall.delete?v=5.107&access_token="+token+"&post_id="+photo);
-            httpGet = new HttpGet(url.toString());
-            CloseableHttpResponse response6 = httpclient.execute(httpGet);
-            entity = response6.getEntity();
-            json = EntityUtils.toString(entity);
-            System.out.println(json);
-            response.close();
-            response2.close();
-            response3.close();
-            response4.close();
-            response5.close();
-            httpclient.close();
-            String output = String.format("%s = %d", "joe", 35);
-            System.out.println(output);
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+    } catch (ParseException e) {
+        e.printStackTrace();
     }
- */
+}
+    }
+

@@ -16,6 +16,8 @@ import org.apache.http.util.EntityUtils;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 
@@ -34,28 +36,35 @@ public class Executer {
         System.out.println(meth.link);
         switch (meth.type) {
             case "NEXT":
-                JsonObject obj;
                 JsonArray arr = JsonParser.parseString(required_results.get(last)).getAsJsonArray();
                 String res;
                 ArrayList<String> links = new ArrayList<>();
                 System.out.println("next");
                 int k = arr.size();
-                for (int i = 0; i < k; i++) {
+                for (int i = 0; i < k; i++)
+                {
                     res = arr.get(i).toString();
-                    for (Path a : op.getPath_to_url()) {
-                        obj = JsonParser.parseString(res).getAsJsonObject();
-                        if (a.column!=-1)
-                            if (a.column==-2)
-                                res = obj.get(a.field).getAsJsonArray().get(obj.get(a.field).getAsJsonArray().size()-1).toString();
-                            else res = obj.get(a.field).getAsJsonArray().get(a.column).toString();
-                        else
-                            res = obj.get(a.field).toString();
-                    }
-                    links.add(res);
+                    for (int j = 0; j< op.getPath_to_url().length-1; j++)
+                {
+                    Path a = op.getPath_to_url()[j];
+                    obj = JsonParser.parseString(res).getAsJsonObject();
+                    if (a.column!=-1)
+                        if (a.column==-2)
+
+                            res = obj.get(a.field).getAsJsonArray().get(obj.get(a.field).getAsJsonArray().size()-1).toString();
+                        else res = obj.get(a.field).getAsJsonArray().get(a.column).toString();
+                    else
+                        res = obj.get(a.field).getAsJsonObject().toString();
+
+                }
+                if (res.startsWith("\"[")) res = JsonParser.parseString(res).getAsJsonArray().get(op.getPath_to_url()[op.getPath_to_url().length-2].column).getAsString();
+                else res = JsonParser.parseString(res).getAsJsonObject().get(op.getPath_to_url()[op.getPath_to_url().length-1].field).getAsString();
+
                     System.out.println(res);
+                    links.add(res);
                 }
                 op.setLinks(links);
-                required_results.clear();
+                System.out.println(links.toString());
                 return 1;
             case "END":
                 System.out.println("Next photo");
@@ -69,18 +78,25 @@ public class Executer {
                     url.append('&');
                     url.append(a);
                     url.append('=');
-                    url.append(required_results.get(a));
+                    url.append(URLEncoder.encode(required_results.get(a),StandardCharsets.UTF_8));
+                    System.out.println(url.toString());
                 }
                 httpGet = new HttpGet(url.toString());
                 try {
                     CloseableHttpResponse response = httpClient.execute(httpGet);
                     HttpEntity entity = response.getEntity();
                     json = EntityUtils.toString(entity);
-                    response.close();
                     System.out.println(json);
-                    for (Param param : meth.results)
-                        param.execute(json, this);
+                    if (meth.error_path.checkError(json,meth))
+                    {
+                        meth.error_message.addParam(json,this);
+                        return -2;
+                    }
+                    {
+                        for (Param param : meth.results)
+                        param.addParam(json, this);
                     return executeRequest(op, type, it + 1, image);
+                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                     return 3;
@@ -89,12 +105,14 @@ public class Executer {
                 if (op.hasPost())
                 url = new StringBuilder(meth.link);
                 else url = new StringBuilder(required_results.get(meth.link));
+                System.out.println(url.toString());
                 for (String a : meth.required_params) {
                     url.append('&');
                     url.append(a);
                     url.append('=');
-                    url.append(required_results.get(a));
+                    url.append(URLEncoder.encode(required_results.get(a), StandardCharsets.UTF_8));
                 }
+                System.out.println(url.toString());
                 httpPost = new HttpPost(url.toString());
                 String tDir = System.getProperty("java.io.tmpdir");
                 String path2 = tDir + "tmp" + ".jpg";
@@ -106,13 +124,19 @@ public class Executer {
                     httpPost.setEntity(mpeBuilder.build());
                     try {
                         CloseableHttpResponse response2 = httpClient.execute(httpPost);
-                        response2.close();
                         HttpEntity entity2 = response2.getEntity();
-                        json = EntityUtils.toString(entity2);
-                        for (Param param : meth.results)
-                            param.execute(json, this);
                         file.delete();
-                        return executeRequest(op, type, it + 1, image);
+                        json = EntityUtils.toString(entity2);
+                        if (meth.error_path.checkError(json,meth))
+                        {
+                            meth.error_message.addParam(json,this);
+                            return -2;
+                        }
+                        {
+                            for (Param param : meth.results)
+                                param.addParam(json, this);
+                            return executeRequest(op, type, it + 1, image);
+                        }
                     } catch (IOException e) {
                         e.printStackTrace();
                         return 4;
@@ -135,4 +159,6 @@ public class Executer {
     }
 
     public void setLast(String last_) {last = last_;}
+
+    public String getError() {return required_results.get(last);}
 }
