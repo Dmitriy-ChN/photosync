@@ -8,21 +8,8 @@ import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
-import org.apache.commons.io.FileUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.ParseException;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpPost;
-import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 
 import java.io.*;
-import java.net.URL;
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 
 public class MainController {
@@ -177,12 +164,12 @@ private Operator find(ArrayList<Operator> op, String name)
                     ArrayList<String> images2 = a.getLinks();
                     for (String i:images)
                     {
-                        //boolean b = comp.compare(i,images2);
-                        //if (!b) {
+                        boolean b = comp.compare(i,images2);
+                        if (!b) {
                             k = exec.executeRequest(a,"POST",0,i);
                         if (k==1) log.getItems().add(new Log(i,"Успешно",target.getName()+" -> "+a.getName()));
                         else log.getItems().add(new Log(i,"Ошибка","Не удалось опубликовать изображения с сайта "+target.getName()+" на сайт "+a.getName()));
-                        //}
+                        }
                     }
                 }
                 else log.getItems().add(new Log("2","Ошибка","Не удалось получить изображения от "+a.getName()));
@@ -210,27 +197,9 @@ private Operator find(ArrayList<Operator> op, String name)
 
 
 
-public void test() {
+    public void test() {
 
-    CloseableHttpClient httpclient = HttpClients.createDefault();
-    HttpPost httpPost = new HttpPost("https://postman-echo.com/post");
-    File file = new File("C:\\Users\\Demon\\Pictures\\2.jpg");
-    System.out.println(file.getName());
-    try {
-        MultipartEntityBuilder mpeBuilder = MultipartEntityBuilder.create();
-        mpeBuilder.addBinaryBody("photo", file);
-        httpPost.setEntity(mpeBuilder.build());
-        try {
-            CloseableHttpResponse response2 = httpclient.execute(httpPost);
-            HttpEntity entity2 = response2.getEntity();
-            String json = EntityUtils.toString(entity2);
-            System.out.println(json);
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    } catch (ParseException e) {
-        e.printStackTrace();
     }
+
 }
-    }
 
