@@ -6,7 +6,7 @@ import javafx.scene.web.WebView;
 import javafx.stage.Stage;
 
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.HashMap;
 
 public class Operator {
     private String name;
@@ -38,7 +38,7 @@ public class Operator {
         this.result_success = result_success;
     }
 
-    private static Map<String,String> access_results = Map.of();
+    private static HashMap<String,String> access_results = new HashMap<>();
     private static ArrayList<String> photo_links = new ArrayList<>();
 
     private static boolean isAuthorized = false;
@@ -66,6 +66,7 @@ public class Operator {
                 st.getScene().getRoot().setDisable(false);
                 isAuthorized = true;
                 butt.setActive();
+                st2.close();
             }
         });
     }
@@ -98,7 +99,7 @@ public class Operator {
         return access_params;
     }
 
-    public Map<String, String> getAccess_results() {
+    public HashMap<String, String> getAccess_results() {
         return access_results;
     }
 
@@ -108,7 +109,7 @@ public class Operator {
 
     public void setLinks(ArrayList<String> links)
     {
-        this.photo_links = links;
+        photo_links = links;
     }
 
     public boolean getAuthorized() { return isAuthorized; }

@@ -34,16 +34,22 @@ public class Param
     {
         if (!isConcatenated)
         {
-            JsonObject obj = JsonParser.parseString(json).getAsJsonObject();
+            JsonObject obj;
+            String res = json;
             for (Path a:path_to_params[0])
             {
-                if (a.column==-1)
-                    obj = obj.get(a.field).getAsJsonArray().get(a.column).getAsJsonObject();
+
+                obj = JsonParser.parseString(res).getAsJsonObject();
+                if (a.column!=-1)
+                    if (a.column==-2)
+
+                    res = obj.get(a.field).getAsJsonArray().get(obj.get(a.field).getAsJsonArray().size()-1).toString();
+                    else res = obj.get(a.field).getAsJsonArray().get(a.column).toString();
                 else
-                    obj = obj.get(a.field).getAsJsonObject();
+                    res = obj.get(a.field).toString();
 
             }
-            String res = obj.getAsString();
+            System.out.println(res);
             exec.required_results.put(name,res);
         }
         else
@@ -51,19 +57,26 @@ public class Param
             String[] params = new String[path_to_params.length];
             for (int i = 0; i < params.length; i++)
             {
-                JsonObject obj = JsonParser.parseString(json).getAsJsonObject();
-                for (Path a:path_to_params[i])
+                JsonObject obj;
+                String res = json;
+                for (Path a:path_to_params[0])
                 {
-                    if (a.column==-1)
-                        obj = obj.get(a.field).getAsJsonArray().get(a.column).getAsJsonObject();
+
+                    obj = JsonParser.parseString(res).getAsJsonObject();
+                    if (a.column!=-1)
+                        if (a.column==-2)
+
+                            res = obj.get(a.field).getAsJsonArray().get(obj.get(a.field).getAsJsonArray().size()-1).toString();
+                        else res = obj.get(a.field).getAsJsonArray().get(a.column).toString();
                     else
-                        obj = obj.get(a.field).getAsJsonObject();
+                        res = obj.get(a.field).toString();
 
                 }
-                String res = obj.getAsString();
+                System.out.println(res);
                 params[i] = res;
             }
             exec.required_results.put(name,interpolation(formatString,params));
         }
+        exec.setLast(name);
     }
 }

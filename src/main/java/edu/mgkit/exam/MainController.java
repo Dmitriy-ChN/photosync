@@ -3,10 +3,7 @@ package edu.mgkit.exam;
 import com.google.gson.*;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.CheckBox;
-import javafx.scene.control.ListView;
-import javafx.scene.control.RadioButton;
+import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
@@ -57,6 +54,11 @@ private Operator find(ArrayList<Operator> op, String name)
             StringBuilder json = new StringBuilder();
             while ((i=reader.read())!=-1) json.append((char)i);
             Operator op = gson.fromJson(json.toString(),Operator.class);
+            System.out.println(op.getName());
+            System.out.println(op.getImage());
+            System.out.println(op.getAuthorized());
+            System.out.println(op.getMethod("GET",0).link);
+            System.out.println(op.getMethod("POST",0).link);
             new_operators.add(op);
         }
         for (Operator a:new_operators)
@@ -101,24 +103,24 @@ private Operator find(ArrayList<Operator> op, String name)
         st2.setOnCloseRequest(windowEvent -> mainStage.getScene().getRoot().setDisable(false));
         ListView elements = (ListView) st2.getScene().lookup("#elements");
         Button activate = (Button) st2.getScene().lookup("#activate");
+        ToggleGroup group = new ToggleGroup();
         for (Operator a:operators)
         {
             if (a.getAuthorized())
             {
                 RadioButton b = new RadioButton(a.getName());
+                b.setToggleGroup(group);
                 ObservableList items = elements.getItems();
                 items.add(b);
                 elements.setItems(items);
             }
 
+
         }
         activate.setOnAction(actionEvent -> {
             Operator targ = null;
-            for (Object q:elements.getItems())
-            {
-                RadioButton q2 = (RadioButton)q;
-                if (q2.isPressed()) targ = find(operators,q2.getText());
-            }
+            RadioButton q = (RadioButton) group.getSelectedToggle();
+            targ = find(operators,q.getText());
             elements.getItems().clear();
             st2.close();
             mainStage.getScene().getRoot().setDisable(false);
@@ -138,6 +140,7 @@ private Operator find(ArrayList<Operator> op, String name)
 
     public void Synchronization(Operator target, ListView<Log> log)
     {
+        System.out.println("start");
         addons.setDisable(true);
         sync1.setDisable(true);
         sync2.setDisable(true);
@@ -146,7 +149,7 @@ private Operator find(ArrayList<Operator> op, String name)
         ArrayList<Operator> actionable = new ArrayList<>();
         for (Operator a:operators)
             if (a.getAuthorized()||!a.getRequired()) actionable.add(a);
-            actionable.remove(target);
+            //actionable.remove(target);
         exec.setAccess(target);
         int k = exec.executeRequest(target,"GET",0,"");
         if (k==1)
@@ -160,18 +163,20 @@ private Operator find(ArrayList<Operator> op, String name)
                     ArrayList<String> images2 = a.getLinks();
                     for (String i:images)
                     {
-                        boolean b = comp.compare(i,images2);
-                        if (!b) {
+                        //boolean b = comp.compare(i,images2);
+                        //if (!b) {
                             k = exec.executeRequest(a,"POST",0,i);
                         if (k==1) log.getItems().add(new Log(i,"Успешно",target.getName()+" -> "+a.getName()));
                         else log.getItems().add(new Log(i,"Ошибка","Не удалось опубликовать изображения с сайта "+target.getName()+" на сайт "+a.getName()));
-                        }
+                        //}
                     }
                 }
-                else log.getItems().add(new Log("","Ошибка","Не удалось получить изображения от "+a.getName()));
+                else log.getItems().add(new Log("2","Ошибка","Не удалось получить изображения от "+a.getName()));
             }
         }
-        else log.getItems().add(new Log("","Ошибка","Не удалось получить изображения от "+target.getName()));
+        else log.getItems().add(new Log("1","Ошибка","Не удалось получить изображения от "+target.getName()));
+
+        log.getItems().add(new Log("","Завершено",target.getName()+" - Синхронизация завершена"));
 
         addons.setDisable(false);
         sync1.setDisable(false);

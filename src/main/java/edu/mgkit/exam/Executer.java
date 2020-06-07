@@ -1,5 +1,6 @@
 package edu.mgkit.exam;
 
+import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.commons.io.FileUtils;
@@ -16,12 +17,12 @@ import java.io.File;
 import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
-import java.util.Map;
+import java.util.HashMap;
 
 public class Executer {
-    static Map<String, String> required_results = Map.of();
+    HashMap<String, String> required_results = new HashMap<>();
     String last;
-    static CloseableHttpClient httpClient = HttpClients.createDefault();
+    CloseableHttpClient httpClient = HttpClients.createDefault();
     HttpGet httpGet;
     HttpPost httpPost;
     StringBuilder url = new StringBuilder();
@@ -30,22 +31,28 @@ public class Executer {
 
     public int executeRequest(Operator op, String type, int it, String image){
         Request meth = op.getMethod(type, it);
+        System.out.println(meth.link);
         switch (meth.type) {
             case "NEXT":
-                obj = JsonParser.parseString(required_results.get(last)).getAsJsonObject();
+                JsonObject obj;
+                JsonArray arr = JsonParser.parseString(required_results.get(last)).getAsJsonArray();
+                String res;
                 ArrayList<String> links = new ArrayList<>();
                 System.out.println("next");
-                int k = obj.getAsJsonArray().size();
+                int k = arr.size();
                 for (int i = 0; i < k; i++) {
-                    obj = obj.getAsJsonArray().get(i).getAsJsonObject();
+                    res = arr.get(i).toString();
                     for (Path a : op.getPath_to_url()) {
-                        if (a.column == -1)
-                            obj = obj.get(a.field).getAsJsonObject();
+                        obj = JsonParser.parseString(res).getAsJsonObject();
+                        if (a.column!=-1)
+                            if (a.column==-2)
+                                res = obj.get(a.field).getAsJsonArray().get(obj.get(a.field).getAsJsonArray().size()-1).toString();
+                            else res = obj.get(a.field).getAsJsonArray().get(a.column).toString();
                         else
-                            obj = obj.get(a.field).getAsJsonArray().get(a.column).getAsJsonObject();
+                            res = obj.get(a.field).toString();
                     }
-                    String s = obj.getAsString();
-                    links.add(s);
+                    links.add(res);
+                    System.out.println(res);
                 }
                 op.setLinks(links);
                 required_results.clear();
@@ -54,7 +61,7 @@ public class Executer {
                 System.out.println("Next photo");
                 String code = required_results.get(last);
                 required_results.clear();
-                if (code==op.getSuccess()) return 1;
+                if (code.equals(op.getSuccess())) return 1;
                 return -1;
             case "GET":
                 url = new StringBuilder(meth.link);
@@ -65,19 +72,19 @@ public class Executer {
                     url.append(required_results.get(a));
                 }
                 httpGet = new HttpGet(url.toString());
-                CloseableHttpResponse response = null;
                 try {
-                    response = httpClient.execute(httpGet);
+                    CloseableHttpResponse response = httpClient.execute(httpGet);
                     HttpEntity entity = response.getEntity();
-                    response.close();
                     json = EntityUtils.toString(entity);
+                    response.close();
+                    System.out.println(json);
                     for (Param param : meth.results)
                         param.execute(json, this);
-                    executeRequest(op, type, it + 1, image);
+                    return executeRequest(op, type, it + 1, image);
                 } catch (IOException e) {
+                    e.printStackTrace();
                     return 3;
                 }
-                break;
             case "POST":
                 if (op.hasPost())
                 url = new StringBuilder(meth.link);
@@ -97,23 +104,23 @@ public class Executer {
                     MultipartEntityBuilder mpeBuilder = MultipartEntityBuilder.create();
                     mpeBuilder.addBinaryBody("photo", file);
                     httpPost.setEntity(mpeBuilder.build());
-                    CloseableHttpResponse response2 = null;
                     try {
-                        response2 = httpClient.execute(httpPost);
+                        CloseableHttpResponse response2 = httpClient.execute(httpPost);
                         response2.close();
                         HttpEntity entity2 = response2.getEntity();
                         json = EntityUtils.toString(entity2);
                         for (Param param : meth.results)
                             param.execute(json, this);
                         file.delete();
-                        executeRequest(op, type, it + 1, image);
+                        return executeRequest(op, type, it + 1, image);
                     } catch (IOException e) {
+                        e.printStackTrace();
                         return 4;
                     }
                 } catch (IOException e) {
+                    e.printStackTrace();
                     return 5;
                 }
-                break;
         }
         return -1;
     }
@@ -122,8 +129,10 @@ public class Executer {
     {
         required_results.clear();
         String[] access = op.getAccess_params();
-        Map<String,String> results = op.getAccess_results();
+        HashMap<String,String> results = op.getAccess_results();
         for (String a:access)
             required_results.put(a,results.get(a));
     }
+
+    public void setLast(String last_) {last = last_;}
 }
