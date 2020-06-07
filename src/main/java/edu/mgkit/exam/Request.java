@@ -19,4 +19,9 @@ public class Request
         this.error_path = error_path;
         this.error_message = error_message;
     }
+
+    public Request(String type) {
+        this.type = type;
+    }
 }
+

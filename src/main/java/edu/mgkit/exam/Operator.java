@@ -89,12 +89,12 @@ public class Operator {
     {
         switch (s)
         {
-            case "GET": if (i>=get_photos.length) return new Request("NEXT",null,null,null);
+            case "GET": if (i>=get_photos.length) return new Request("NEXT");
             else return get_photos[i];
-            case "POST": if (i>=post_photos.length) return new Request("END",null,null,null);
+            case "POST": if (i>=post_photos.length) return new Request("END");
             else return post_photos[i];
         }
-        return new Request("ERROR",null,null,null);
+        return new Request("ERROR");
     }
 
     public String[] getAccess_params() {
