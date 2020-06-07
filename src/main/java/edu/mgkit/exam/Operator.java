@@ -61,6 +61,7 @@ public class Operator {
                    access_results.put(a,s);
                 }
                 st2.close();
+                st.getScene().getRoot().setDisable(false);
                 isAuthorized = true;
             }
         });
