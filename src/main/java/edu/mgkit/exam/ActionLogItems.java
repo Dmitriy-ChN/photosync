@@ -10,7 +10,7 @@ import javafx.scene.web.WebView;
 
 public class ActionLogItems extends ListCell<Log> {
 
-    private int index;
+    private int index = 1;
 
         @Override protected void updateItem(Log item, boolean empty) {
             super.updateItem(item, empty);
@@ -43,10 +43,7 @@ public class ActionLogItems extends ListCell<Log> {
                         new Separator(Orientation.VERTICAL),
                         lMessage));
             }
+            index++;
         }
 
-        public void setIndex(int q)
-        {
-            this.index = q;
-        }
 }

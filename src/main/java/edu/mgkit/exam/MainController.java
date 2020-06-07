@@ -128,6 +128,9 @@ private Operator find(ArrayList<Operator> op, String name)
                 Stage st3 = App.setScene("Log");
                 ListView log = (ListView) st3.getScene().lookup("#ActionLog");
                 log.setCellFactory(param -> new ActionLogItems());
+                st3.setOnCloseRequest(windowEvent -> {
+                    log.getItems().clear();
+                });
                 if (targ != null) Synchronization(targ,log);
             } catch (IOException e) {
                 e.printStackTrace();
@@ -188,8 +191,12 @@ private Operator find(ArrayList<Operator> op, String name)
 
     public void syncAll() throws IOException {
         Stage st2 = App.setScene("Log");
+
         ListView log = (ListView) st2.getScene().lookup("#ActionLog");
         log.setCellFactory(param -> new ActionLogItems());
+        st2.setOnCloseRequest(windowEvent -> {
+            log.getItems().clear();
+        });
     for (Operator a:operators)
         if (a.getAuthorized()) Synchronization(a,log);
     }

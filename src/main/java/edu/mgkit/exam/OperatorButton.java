@@ -3,7 +3,6 @@ package edu.mgkit.exam;
 import javafx.scene.control.Button;
 import javafx.scene.image.*;
 import javafx.scene.paint.Color;
-import javafx.stage.Stage;
 
 public class OperatorButton extends Button {
 
