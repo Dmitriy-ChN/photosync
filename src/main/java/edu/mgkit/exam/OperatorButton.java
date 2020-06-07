@@ -15,8 +15,9 @@ public class OperatorButton extends Button {
     public void setOperator(Operator op)
     {
         this.operator = op;
-        this.setGraphic(new ImageView(new Image(operator.getImage())));
-        this.setWidth(100);
-        this.setHeight(100);
+        ImageView icon = new ImageView(new Image(operator.getImage()));
+        icon.setFitWidth(40);
+        icon.setFitHeight(40);
+        this.setGraphic(icon);
     }
 }

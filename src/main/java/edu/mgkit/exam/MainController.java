@@ -7,6 +7,8 @@ import javafx.scene.control.Button;
 import javafx.scene.control.CheckBox;
 import javafx.scene.control.ListView;
 import javafx.scene.control.RadioButton;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
 
@@ -22,6 +24,7 @@ public class MainController {
     private Button sync1;
     @FXML
     private Button sync2;
+    @FXML private ImageView img1;
 
 private ArrayList<Operator> operators = new ArrayList<>();
 private ArrayList<Operator> new_operators = new ArrayList<>();
@@ -75,6 +78,8 @@ private Operator find(ArrayList<Operator> op, String name)
                     String name = q2.getText();
                         OperatorButton butt = new OperatorButton();
                         butt.setOperator(find(new_operators,name));
+                        img1.setImage(new Image(butt.getOperator().getImage()));
+                        System.out.println(butt.getOperator().getImage());
                         butt.setOnAction(actionEvent1 -> {
                             try {
                                 butt.getOperator().aut(mainStage);
@@ -88,6 +93,7 @@ private Operator find(ArrayList<Operator> op, String name)
             operators = new_operators;
             elements.getItems().clear();
             st2.close();
+            mainStage.getScene().getRoot().setDisable(false);
             new_operators.clear();
             operators.clear();
             for (Object q: modulePane.getChildren())
@@ -122,6 +128,7 @@ private Operator find(ArrayList<Operator> op, String name)
             }
             elements.getItems().clear();
             st2.close();
+            mainStage.getScene().getRoot().setDisable(false);
             try {
                 Stage st3 = App.setScene("Log");
                 ListView log = (ListView) st3.getScene().lookup("#ActionLog");
