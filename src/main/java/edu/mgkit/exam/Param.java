@@ -36,6 +36,8 @@ public class Param
         {
             JsonObject obj;
             String res = json;
+            System.out.println(res);
+            System.out.println("1");
             for (int i = 0; i< path_to_params[0].size()-1; i++)
             {
                 Path a = path_to_params[0].get(i);
@@ -47,11 +49,14 @@ public class Param
                     else res = obj.get(a.field).getAsJsonArray().get(a.column).toString();
                 else
                     res = obj.get(a.field).toString();
-
+                System.out.println(res);
             }
-            if (res.startsWith("\"[")) res = JsonParser.parseString(res).getAsJsonArray().get(path_to_params[0].get(path_to_params[0].size()-2).column).getAsString();
-            else res = JsonParser.parseString(res).getAsJsonObject().get(path_to_params[0].get(path_to_params[0].size()-1).field).getAsString();
+            if (path_to_params[0].size()==0) return res;
+            if (res.startsWith("[")) res = JsonParser.parseString(res).getAsJsonArray().get(path_to_params[0].get(path_to_params[0].size()-2).column).getAsString();
+            else res = JsonParser.parseString(res).getAsJsonObject().get(path_to_params[0].get(path_to_params[0].size()-1).field).toString();
+            if (!res.startsWith("[")) res = JsonParser.parseString(res).getAsString();
             System.out.println(res);
+            System.out.println("2");
             return res;
         }
         else

@@ -2,6 +2,7 @@ package edu.mgkit.exam;
 
 import javafx.scene.image.Image;
 import javafx.scene.image.PixelReader;
+import javafx.scene.paint.Color;
 
 import java.util.ArrayList;
 
@@ -28,7 +29,7 @@ public class Comparer {
                     double red2 = pxl2.getColor(i,j).getRed();
                     double green2 = pxl2.getColor(i,j).getGreen();
                     double blue2 = pxl2.getColor(i,j).getBlue();
-                    if (Math.abs(red1-red2)<=25.5&&Math.abs(green1-green2)<=25.5&&Math.abs(blue1-blue2)<=25.5) cnt++;
+                    if (Math.abs(red1-red2)<= 0.1 &&Math.abs(green1-green2)<=0.1&&Math.abs(blue1-blue2)<=0.1) cnt++;
                 }
             if (cnt>=9000) return true;
         }

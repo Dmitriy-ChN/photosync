@@ -16,6 +16,7 @@ import org.apache.http.util.EntityUtils;
 import java.io.File;
 import java.io.IOException;
 import java.net.URL;
+import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -36,6 +37,7 @@ public class Executer {
         System.out.println(meth.link);
         switch (meth.type) {
             case "NEXT":
+                System.out.println(required_results.get(last));
                 JsonArray arr = JsonParser.parseString(required_results.get(last)).getAsJsonArray();
                 String res;
                 ArrayList<String> links = new ArrayList<>();
@@ -69,7 +71,6 @@ public class Executer {
             case "END":
                 System.out.println("Next photo");
                 String code = required_results.get(last);
-                required_results.clear();
                 if (code.equals(op.getSuccess())) return 1;
                 return -1;
             case "GET":
@@ -87,16 +88,14 @@ public class Executer {
                     HttpEntity entity = response.getEntity();
                     json = EntityUtils.toString(entity);
                     System.out.println(json);
-                    if (meth.error_path.checkError(json,meth))
+                /*    if (meth.error_path.checkError(json,meth))
                     {
                         meth.error_message.addParam(json,this);
                         return -2;
-                    }
-                    {
+                    }*/
                         for (Param param : meth.results)
                         param.addParam(json, this);
                     return executeRequest(op, type, it + 1, image);
-                    }
                 } catch (IOException e) {
                     e.printStackTrace();
                     return 3;
@@ -105,6 +104,7 @@ public class Executer {
                 if (op.hasPost())
                 url = new StringBuilder(meth.link);
                 else url = new StringBuilder(required_results.get(meth.link));
+                if (url.toString().startsWith((String.valueOf((char)34)))) url = new StringBuilder(url.toString().substring(1,url.toString().length()-1));
                 System.out.println(url.toString());
                 for (String a : meth.required_params) {
                     url.append('&');
@@ -127,16 +127,14 @@ public class Executer {
                         HttpEntity entity2 = response2.getEntity();
                         file.delete();
                         json = EntityUtils.toString(entity2);
-                        if (meth.error_path.checkError(json,meth))
+                       /* if (meth.error_path.checkError(json,meth))
                         {
                             meth.error_message.addParam(json,this);
                             return -2;
-                        }
-                        {
+                        }*/
                             for (Param param : meth.results)
                                 param.addParam(json, this);
                             return executeRequest(op, type, it + 1, image);
-                        }
                     } catch (IOException e) {
                         e.printStackTrace();
                         return 4;

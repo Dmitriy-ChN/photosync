@@ -7,6 +7,7 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
+import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.io.*;
@@ -153,7 +154,7 @@ private Operator find(ArrayList<Operator> op, String name)
 
     public void Synchronization(Operator target, ListView<Log> log)
     {
-        System.out.println("start");
+        test.setText("start");
         addons.setDisable(true);
         sync1.setDisable(true);
         sync2.setDisable(true);
@@ -167,6 +168,7 @@ private Operator find(ArrayList<Operator> op, String name)
         int k = exec.executeRequest(target,"GET",0,"");
         if (k==1)
         {
+            test.setText("step1");
             ArrayList<String> images = target.getLinks();
             for (Operator a:actionable)
             {
@@ -174,14 +176,22 @@ private Operator find(ArrayList<Operator> op, String name)
                 k = exec.executeRequest(a,"GET",0,"");
                 if (k==1)
                 {
+                    test.setText("step2");
                     ArrayList<String> images2 = a.getLinks();
                     for (String i:images)
                     {
                         boolean b = comp.compare(i,images2);
+                        test.setText("step3");
                         if (!b) {
                             k = exec.executeRequest(a,"POST",0,i);
+                            test.setText("step4");
                         if (k==1) log.getItems().add(new Log(i,"Успешно",target.getName()+" -> "+a.getName()));
                         else log.getItems().add(new Log(i,"Ошибка","Не удалось опубликовать изображения с сайта "+target.getName()+" на сайт "+a.getName()));
+                        }
+                        try {
+                            Thread.sleep(1000);
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
                         }
                     }
                 }
