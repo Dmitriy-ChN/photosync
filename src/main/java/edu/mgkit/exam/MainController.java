@@ -10,6 +10,8 @@ import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
 
 import java.io.*;
+import java.net.URL;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 
 public class MainController {
@@ -22,6 +24,8 @@ public class MainController {
     @FXML
     private Button sync2;
     @FXML private ImageView img1;
+    @FXML
+    private Label test;
 
 private ArrayList<Operator> operators = new ArrayList<>();
 private ArrayList<Operator> new_operators = new ArrayList<>();
@@ -42,9 +46,15 @@ private Operator find(ArrayList<Operator> op, String name)
         st2.setOnCloseRequest(windowEvent -> mainStage.getScene().getRoot().setDisable(false));
         ListView elements = (ListView) st2.getScene().lookup("#elements");
         Button activate = (Button) st2.getScene().lookup("#activate");
-        File folder = new File("src/main/resources/edu/mgkit/exam/modules");
+        String url = App.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        File folder = new File(url);
+        url = folder.getParentFile().getPath()+"\\modules\\";
+
+        folder = new File(url);
+        String k = String.valueOf(folder.isDirectory());
+        test.setText(url+" "+k);
         FileFilter filter = pathname -> pathname.toString().contains("json");
-        File[] files = folder.listFiles(filter);
+         File[] files = folder.listFiles(filter);
         Gson gson = new Gson();
         assert files != null;
         for (File entry:files)
