@@ -88,7 +88,7 @@ public class Executer {
                     HttpEntity entity = response.getEntity();
                     json = EntityUtils.toString(entity);
                     System.out.println(json);
-                    if (meth.error_path.checkError(json,meth))
+                    if (meth.error.checkError(json))
                     {
                         if (meth.error_message!=null) {
                             meth.error_message.addParam(json, this);
@@ -142,7 +142,7 @@ public class Executer {
                         CloseableHttpResponse response2 = httpClient.execute(httpPost);
                         HttpEntity entity2 = response2.getEntity();
                         json = EntityUtils.toString(entity2);
-                        if (meth.error_path.checkError(json,meth))
+                        if (meth.error.checkError(json))
                         {
                             if (meth.error_message!=null) {
                                 meth.error_message.addParam(json, this);

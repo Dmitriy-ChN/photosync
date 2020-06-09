@@ -53,8 +53,8 @@ public class Param
             }
             if (path_to_params[0].size()==0) return res;
             if (res.startsWith("[")) res = JsonParser.parseString(res).getAsJsonArray().get(path_to_params[0].get(path_to_params[0].size()-2).column).getAsString();
-            else res = JsonParser.parseString(res).getAsJsonObject().get(path_to_params[0].get(path_to_params[0].size()-1).field).toString();
-            if (!res.startsWith("[")) res = JsonParser.parseString(res).getAsString();
+            else res = String.valueOf(JsonParser.parseString(res).getAsJsonObject().get(path_to_params[0].get(path_to_params[0].size()-1).field));
+            if (!res.startsWith("[")&&!res.equals("null")) res = JsonParser.parseString(res).getAsString();
             System.out.println(res);
             System.out.println("2");
             return res;
@@ -76,10 +76,10 @@ public class Param
                             res = obj.get(a.field).getAsJsonArray().get(obj.get(a.field).getAsJsonArray().size()-1).toString();
                         else res = obj.get(a.field).getAsJsonArray().get(a.column).toString();
                     else
-                        res = obj.get(a.field).getAsJsonObject().toString();
+                        res = String.valueOf(obj.get(a.field));
 
                 }
-                if (res.startsWith("\"[")) res = JsonParser.parseString(res).getAsJsonArray().get(path_to_params[j].get(path_to_params[j].size()-2).column).getAsString();
+                if (res.startsWith("[")) res = JsonParser.parseString(res).getAsJsonArray().get(path_to_params[j].get(path_to_params[j].size()-2).column).getAsString();
                 else res = JsonParser.parseString(res).getAsJsonObject().get(path_to_params[j].get(path_to_params[j].size()-1).field).getAsString();
                 System.out.println(res);
                 params[j] = res;
@@ -94,8 +94,8 @@ public class Param
         exec.setLast(name);
     }
 
-    public boolean checkError(String json, Request cur)
+    public boolean checkError(String json)
     {
-        return (execute(json).equals(cur.error_code));
+        return (!execute(json).equals("null") &&execute(json).equals(name));
     }
 }
