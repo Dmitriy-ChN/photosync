@@ -2,6 +2,7 @@ package edu.mgkit.exam;
 
 import com.google.gson.*;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.image.Image;
@@ -10,6 +11,7 @@ import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
 
 import java.io.*;
+import java.net.MalformedURLException;
 import java.util.ArrayList;
 
 public class MainController {
@@ -21,9 +23,10 @@ public class MainController {
     private Button sync1;
     @FXML
     private Button sync2;
-    @FXML private ImageView img1;
     @FXML
-    private Label test;
+    private Label MessageText;
+    @FXML
+    private ImageView CurrentMod;
 
 private ArrayList<Operator> operators = new ArrayList<>();
 private ArrayList<Operator> new_operators = new ArrayList<>();
@@ -50,7 +53,6 @@ private Operator find(ArrayList<Operator> op, String name)
 
         folder = new File(url);
         String k = String.valueOf(folder.isDirectory());
-        test.setText(url+" "+k);
         FileFilter filter = pathname -> pathname.toString().contains("json");
          File[] files = folder.listFiles(filter);
         Gson gson = new Gson();
@@ -88,7 +90,6 @@ private Operator find(ArrayList<Operator> op, String name)
                     String name = q2.getText();
                         OperatorButton butt = new OperatorButton();
                         butt.setOperator(find(new_operators,name));
-                        img1.setImage(new Image(butt.getOperator().getImage()));
                         System.out.println(butt.getOperator().getImage());
                         modulePane.getChildren().add(butt);
                 }
@@ -101,6 +102,17 @@ private Operator find(ArrayList<Operator> op, String name)
             operators.clear();
             for (Object q: modulePane.getChildren())
                 operators.add(((OperatorButton)q).getOperator());
+            if (operators.size()<=1)
+            {
+                CurrentMod.setImage(new Image(getClass().getResourceAsStream("pictures/mod6.jpg"),CurrentMod.getFitWidth(),CurrentMod.getFitHeight(),false,false));
+                //CurrentMod.setImage(new Image("file://"+path,CurrentMod.getFitWidth(),CurrentMod.getFitHeight(),false,false));
+                MessageText.setText("Нет модулей - нет работы");
+            }
+            else
+            {
+                CurrentMod.setImage(new Image(getClass().getResourceAsStream("pictures/mod5.jpg"),CurrentMod.getFitWidth(),CurrentMod.getFitHeight(),false,false));
+                MessageText.setText("Теперь можно начинать");
+            }
         });
     }
 
@@ -153,7 +165,8 @@ private Operator find(ArrayList<Operator> op, String name)
 
     public int Synchronization(Operator target, ListView<Log> log, int cnt)
     {
-        test.setText("start");
+        CurrentMod.setImage(new Image(getClass().getResourceAsStream("pictures/mod2.gif"),CurrentMod.getFitWidth(),CurrentMod.getFitHeight(),false,false));
+        MessageText.setText("Ждем...");
         addons.setDisable(true);
         sync1.setDisable(true);
         sync2.setDisable(true);
@@ -167,7 +180,6 @@ private Operator find(ArrayList<Operator> op, String name)
         int k = exec.executeRequest(target,"GET",0,"");
         if (k==1)
         {
-            test.setText("step1");
             ArrayList<String> images = target.getLinks();
             for (Operator a:actionable)
             {
@@ -175,15 +187,12 @@ private Operator find(ArrayList<Operator> op, String name)
                 k = exec.executeRequest(a,"GET",0,"");
                 if (k==1)
                 {
-                    test.setText("step2");
                     ArrayList<String> images2 = a.getLinks();
                     for (String i:images)
                     {
                         boolean b = comp.compare(i,images2);
-                        test.setText("step3");
                         if (!b) {
                             k = exec.executeRequest(a,"POST",0,i);
-                            test.setText("step4");
                         if (k==1) log.getItems().add(new Log(cnt, i,"Успешно",target.getName()+" -> "+a.getName()));
                         else log.getItems().add(new Log(cnt, i,"Ошибка","Не удалось опубликовать изображения с сайта "+target.getName()+" на сайт "+a.getName()+";"+exec.getError()));
                         }
@@ -205,6 +214,16 @@ private Operator find(ArrayList<Operator> op, String name)
         addons.setDisable(false);
         sync1.setDisable(false);
         sync2.setDisable(false);
+        CurrentMod.setImage(new Image(getClass().getResourceAsStream("pictures/mod3.jpg"),CurrentMod.getFitWidth(),CurrentMod.getFitHeight(),false,false));
+        MessageText.setText("Успешно");
+        for (Log a:log.getItems())
+        {
+            if (a.getResult().equals("Ошибка"))
+            {
+                CurrentMod.setImage(new Image(getClass().getResourceAsStream("pictures/mod4.png"),CurrentMod.getFitWidth(),CurrentMod.getFitHeight(),false,false));
+                MessageText.setText("Ничто не идеально");
+            }
+        }
         return cnt;
     }
 
@@ -226,13 +245,5 @@ private Operator find(ArrayList<Operator> op, String name)
         }
         st2.show();
     }
-
-
-
-
-    public void test() {
-
-    }
-
 }
 

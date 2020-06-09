@@ -3,16 +3,26 @@
 <?import javafx.scene.control.*?>
 <?import javafx.scene.image.*?>
 <?import javafx.scene.layout.*?>
+<?import javafx.scene.text.*?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="edu.mgkit.exam.MainController">
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="619.0" prefWidth="847.0" style="-fx-background-color: #DDFFFF;" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="edu.mgkit.exam.MainController">
    <children>
-      <FlowPane fx:id="modulePane" layoutX="355.0" layoutY="97.0" prefHeight="206.0" prefWidth="200.0" style="-fx-background-color: AABBCC;" />
-      <Label layoutX="402.0" layoutY="57.0" prefHeight="36.0" prefWidth="106.0" text="Подключенные модули" textAlignment="CENTER" wrapText="true" />
-      <Button fx:id="addons" layoutX="390.0" layoutY="330.0" mnemonicParsing="false" onAction="#openMenu" text="Подключить модули" />
-      <Button fx:id="sync1" layoutX="31.0" layoutY="112.0" mnemonicParsing="false" onAction="#syncOne" text="Синхронизировать с одного источника" />
-      <Button fx:id="sync2" layoutX="32.0" layoutY="245.0" mnemonicParsing="false" onAction="#syncAll" text="Синхронизировать со всех источников" />
-      <ImageView fx:id="img1" fitHeight="150.0" fitWidth="200.0" layoutX="63.0" layoutY="280.0" pickOnBounds="true" preserveRatio="true" />
-      <Button layoutX="102.0" layoutY="312.0" mnemonicParsing="false" onAction="#test" text="Button" />
-      <Label fx:id="test" layoutX="216.0" layoutY="322.0" text="Label" />
+      <FlowPane fx:id="modulePane" layoutX="433.0" layoutY="132.0" prefHeight="320.0" prefWidth="400.0" style="-fx-background-color: #00AACC;" />
+      <Label layoutX="517.0" layoutY="74.0" prefHeight="58.0" prefWidth="267.0" text="Подключенные модули" textAlignment="CENTER" wrapText="true">
+         <font>
+            <Font name="Verdana Bold" size="18.0" />
+         </font></Label>
+      <Button fx:id="addons" layoutX="568.0" layoutY="483.0" mnemonicParsing="false" onAction="#openMenu" text="Подключить модули" />
+      <Button fx:id="sync1" layoutX="21.0" layoutY="508.0" mnemonicParsing="false" onAction="#syncOne" text="Синхронизировать с одного источника" />
+      <Button fx:id="sync2" layoutX="22.0" layoutY="568.0" mnemonicParsing="false" onAction="#syncAll" text="Синхронизировать со всех источников" />
+      <ImageView fx:id="CurrentMod" fitHeight="250.0" fitWidth="250.0" layoutX="22.0" layoutY="132.0" pickOnBounds="true" preserveRatio="true">
+         <image>
+            <Image url="@pictures/mod1.png" />
+         </image></ImageView>
+      <Label fx:id="MessageText" layoutX="23.0" layoutY="392.0" prefHeight="46.0" prefWidth="248.0" text="Label">
+         <font>
+            <Font size="14.0" />
+         </font>
+      </Label>
    </children>
 </Pane>
