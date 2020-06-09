@@ -96,7 +96,7 @@ public class Executer {
                         for (Param param : meth.results)
                         param.addParam(json, this);
                     return executeRequest(op, type, it + 1, image);
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                     return 3;
                 }
@@ -135,11 +135,11 @@ public class Executer {
                             for (Param param : meth.results)
                                 param.addParam(json, this);
                             return executeRequest(op, type, it + 1, image);
-                    } catch (IOException e) {
+                    } catch (Exception e) {
                         e.printStackTrace();
                         return 4;
                     }
-                } catch (IOException e) {
+                } catch (Exception e) {
                     e.printStackTrace();
                     return 5;
                 }

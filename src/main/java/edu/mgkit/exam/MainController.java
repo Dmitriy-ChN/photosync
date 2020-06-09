@@ -137,12 +137,14 @@ private Operator find(ArrayList<Operator> op, String name)
             mainStage.getScene().getRoot().setDisable(false);
             try {
                 Stage st3 = App.setScene("Log");
+                st3.hide();
                 ListView log = (ListView) st3.getScene().lookup("#ActionLog");
                 log.setCellFactory(param -> new ActionLogItems());
                 st3.setOnCloseRequest(windowEvent -> {
                     log.getItems().clear();
                 });
                 if (targ != null) Synchronization(targ,log);
+                st3.show();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -189,7 +191,7 @@ private Operator find(ArrayList<Operator> op, String name)
                         else log.getItems().add(new Log(i,"Ошибка","Не удалось опубликовать изображения с сайта "+target.getName()+" на сайт "+a.getName()));
                         }
                         try {
-                            Thread.sleep(1000);
+                            Thread.sleep(500);
                         } catch (InterruptedException e) {
                             e.printStackTrace();
                         }
@@ -211,7 +213,7 @@ private Operator find(ArrayList<Operator> op, String name)
 
     public void syncAll() throws IOException {
         Stage st2 = App.setScene("Log");
-
+        st2.hide();
         ListView log = (ListView) st2.getScene().lookup("#ActionLog");
         log.setCellFactory(param -> new ActionLogItems());
         st2.setOnCloseRequest(windowEvent -> {
@@ -219,6 +221,7 @@ private Operator find(ArrayList<Operator> op, String name)
         });
     for (Operator a:operators)
         if (a.getAuthorized()) Synchronization(a,log);
+        st2.show();
     }
 
 
