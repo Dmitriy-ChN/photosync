@@ -87,16 +87,17 @@ public class Executer {
                     HttpEntity entity = response.getEntity();
                     json = EntityUtils.toString(entity);
                     System.out.println(json);
-                    if (meth.error_path!=null)
                     if (meth.error_path.checkError(json,meth))
                     {
                         meth.error_message.addParam(json,this);
+                        error = required_results.get(last);
                         return -2;
                     }
                         for (Param param : meth.results)
                         param.addParam(json, this);
                     return executeRequest(op, type, it + 1, image);
                 } catch (Exception e) {
+                    error = "inner error";
                     e.printStackTrace();
                     return 3;
                 }
@@ -127,10 +128,10 @@ public class Executer {
                         HttpEntity entity2 = response2.getEntity();
                         file.delete();
                         json = EntityUtils.toString(entity2);
-                        if (meth.error_path!=null)
                         if (meth.error_path.checkError(json,meth))
                         {
                             meth.error_message.addParam(json,this);
+                            error = required_results.get(last);
                             return -2;
                         }
                             for (Param param : meth.results)
