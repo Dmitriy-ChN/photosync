@@ -20,11 +20,12 @@ public class Operator {
     private Request[] get_photos;
     private Request[] post_photos;
     private String result_success;
+    private String image_name;
 
 
     public Operator(String name, String image, Boolean is_authorization_required, Boolean has_upload_server,
                     String authorization, String redirect, String[] access_params, Path[] path_to_url,
-                    Request[] get_photos, Request[] post_photos, String result_success) {
+                    Request[] get_photos, Request[] post_photos, String result_success, String image_name) {
         this.name = name;
         this.image = image;
         this.is_authorization_required = is_authorization_required;
@@ -36,6 +37,7 @@ public class Operator {
         this.get_photos = get_photos;
         this.post_photos = post_photos;
         this.result_success = result_success;
+        this.image_name = image_name;
     }
 
     private static HashMap<String,String> access_results = new HashMap<>();
@@ -119,4 +121,6 @@ public class Operator {
     public String getSuccess() {return result_success;}
 
     public Boolean hasPost() {return has_upload_server;}
+
+    public String getImageName() {return image_name;}
 }

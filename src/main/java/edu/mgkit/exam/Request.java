@@ -3,14 +3,14 @@ package edu.mgkit.exam;
 public class Request
 {
     String type;
-    String[] required_params;
+    Path[] required_params;
     String link;
     Param[] results;
     String error_code;
     Param error_path;
     Param error_message;
 
-    public Request(String type, String[] required_params, String link, Param[] results, String error_code, Param error_path, Param error_message) {
+    public Request(String type, Path[] required_params, String link, Param[] results, String error_code, Param error_path, Param error_message) {
         this.type = type;
         this.required_params = required_params;
         this.link = link;

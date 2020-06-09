@@ -32,6 +32,7 @@ public class Executer {
     String error;
 
     public int executeRequest(Operator op, String type, int it, String image){
+        error = "";
         Request meth = op.getMethod(type, it);
         System.out.println(meth.link);
         switch (meth.type) {
@@ -74,11 +75,11 @@ public class Executer {
                 return -1;
             case "GET":
                 url = new StringBuilder(meth.link);
-                for (String a : meth.required_params) {
+                for (Path a : meth.required_params) {
                     url.append('&');
-                    url.append(a);
+                    url.append(a.field);
                     url.append('=');
-                    url.append(URLEncoder.encode(required_results.get(a),StandardCharsets.UTF_8));
+                    url.append(URLEncoder.encode(required_results.get(a.field),StandardCharsets.UTF_8));
                     System.out.println(url.toString());
                 }
                 httpGet = new HttpGet(url.toString());
@@ -89,8 +90,10 @@ public class Executer {
                     System.out.println(json);
                     if (meth.error_path.checkError(json,meth))
                     {
-                        meth.error_message.addParam(json,this);
-                        error = required_results.get(last);
+                        if (meth.error_message!=null) {
+                            meth.error_message.addParam(json, this);
+                            error = required_results.get(last);
+                        }
                         return -2;
                     }
                         for (Param param : meth.results)
@@ -107,31 +110,44 @@ public class Executer {
                 else url = new StringBuilder(required_results.get(meth.link));
                 if (url.toString().startsWith((String.valueOf((char)34)))) url = new StringBuilder(url.toString().substring(1,url.toString().length()-1));
                 System.out.println(url.toString());
-                for (String a : meth.required_params) {
-                    url.append('&');
-                    url.append(a);
-                    url.append('=');
-                    url.append(URLEncoder.encode(required_results.get(a), StandardCharsets.UTF_8));
+                MultipartEntityBuilder mpeBuilder = MultipartEntityBuilder.create();
+                required_results.put(op.getImageName(),image);
+                try {
+                for (Path a : meth.required_params) {
+                    if (a.column==0)
+                    {
+                        url.append('&');
+                        url.append(a.field);
+                        url.append('=');
+                        url.append(URLEncoder.encode(required_results.get(a.field), StandardCharsets.UTF_8));
+                    }
+                    else if (a.column==1)
+                    {
+                        mpeBuilder.addTextBody(a.field,required_results.get(a.field));
+                    }
+                    else if (a.column==2)
+                    {
+                        String tDir = System.getProperty("java.io.tmpdir");
+                        String path2 = tDir + "tmp" + ".jpg";
+                        File file = new File(path2);
+                        file.deleteOnExit();
+                        FileUtils.copyURLToFile(new URL(required_results.get(a.field)), file);
+                        mpeBuilder.addBinaryBody(a.field, file);
+                    }
                 }
                 System.out.println(url.toString());
                 httpPost = new HttpPost(url.toString());
-                String tDir = System.getProperty("java.io.tmpdir");
-                String path2 = tDir + "tmp" + ".jpg";
-                File file = new File(path2);
-                try {
-                    FileUtils.copyURLToFile(new URL(image), file);
-                    MultipartEntityBuilder mpeBuilder = MultipartEntityBuilder.create();
-                    mpeBuilder.addBinaryBody("photo", file);
                     httpPost.setEntity(mpeBuilder.build());
                     try {
                         CloseableHttpResponse response2 = httpClient.execute(httpPost);
                         HttpEntity entity2 = response2.getEntity();
-                        file.delete();
                         json = EntityUtils.toString(entity2);
                         if (meth.error_path.checkError(json,meth))
                         {
-                            meth.error_message.addParam(json,this);
-                            error = required_results.get(last);
+                            if (meth.error_message!=null) {
+                                meth.error_message.addParam(json, this);
+                                error = required_results.get(last);
+                            }
                             return -2;
                         }
                             for (Param param : meth.results)
