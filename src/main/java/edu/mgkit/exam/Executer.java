@@ -14,9 +14,7 @@ import org.apache.http.impl.client.HttpClients;
 import org.apache.http.util.EntityUtils;
 
 import java.io.File;
-import java.io.IOException;
 import java.net.URL;
-import java.net.URLDecoder;
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
@@ -31,6 +29,7 @@ public class Executer {
     StringBuilder url = new StringBuilder();
     String json;
     JsonObject obj;
+    String error;
 
     public int executeRequest(Operator op, String type, int it, String image){
         Request meth = op.getMethod(type, it);
@@ -88,6 +87,7 @@ public class Executer {
                     HttpEntity entity = response.getEntity();
                     json = EntityUtils.toString(entity);
                     System.out.println(json);
+                    if (meth.error_path!=null)
                     if (meth.error_path.checkError(json,meth))
                     {
                         meth.error_message.addParam(json,this);
@@ -127,6 +127,7 @@ public class Executer {
                         HttpEntity entity2 = response2.getEntity();
                         file.delete();
                         json = EntityUtils.toString(entity2);
+                        if (meth.error_path!=null)
                         if (meth.error_path.checkError(json,meth))
                         {
                             meth.error_message.addParam(json,this);
@@ -136,10 +137,12 @@ public class Executer {
                                 param.addParam(json, this);
                             return executeRequest(op, type, it + 1, image);
                     } catch (Exception e) {
+                        error = "inner error";
                         e.printStackTrace();
                         return 4;
                     }
                 } catch (Exception e) {
+                    error = "inner error";
                     e.printStackTrace();
                     return 5;
                 }
@@ -158,5 +161,5 @@ public class Executer {
 
     public void setLast(String last_) {last = last_;}
 
-    public String getError() {return required_results.get(last);}
+    public String getError() {return error;}
 }

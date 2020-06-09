@@ -7,12 +7,9 @@ import javafx.scene.control.*;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.layout.FlowPane;
-import javafx.scene.paint.Color;
 import javafx.stage.Stage;
 
 import java.io.*;
-import java.net.URL;
-import java.nio.file.Paths;
 import java.util.ArrayList;
 
 public class MainController {
@@ -143,7 +140,7 @@ private Operator find(ArrayList<Operator> op, String name)
                 st3.setOnCloseRequest(windowEvent -> {
                     log.getItems().clear();
                 });
-                if (targ != null) Synchronization(targ,log);
+                if (targ != null) Synchronization(targ,log,1);
                 st3.show();
             } catch (IOException e) {
                 e.printStackTrace();
@@ -154,7 +151,7 @@ private Operator find(ArrayList<Operator> op, String name)
 
 
 
-    public void Synchronization(Operator target, ListView<Log> log)
+    public int Synchronization(Operator target, ListView<Log> log, int cnt)
     {
         test.setText("start");
         addons.setDisable(true);
@@ -187,8 +184,8 @@ private Operator find(ArrayList<Operator> op, String name)
                         if (!b) {
                             k = exec.executeRequest(a,"POST",0,i);
                             test.setText("step4");
-                        if (k==1) log.getItems().add(new Log(i,"Успешно",target.getName()+" -> "+a.getName()));
-                        else log.getItems().add(new Log(i,"Ошибка","Не удалось опубликовать изображения с сайта "+target.getName()+" на сайт "+a.getName()));
+                        if (k==1) log.getItems().add(new Log(cnt, i,"Успешно",target.getName()+" -> "+a.getName()));
+                        else log.getItems().add(new Log(cnt, i,"Ошибка","Не удалось опубликовать изображения с сайта "+target.getName()+" на сайт "+a.getName()+";"+exec.getError()));
                         }
                         try {
                             Thread.sleep(500);
@@ -197,22 +194,25 @@ private Operator find(ArrayList<Operator> op, String name)
                         }
                     }
                 }
-                else log.getItems().add(new Log("2","Ошибка","Не удалось получить изображения от "+a.getName()));
+                else log.getItems().add(new Log(cnt, "","Ошибка","Не удалось получить изображения от "+a.getName()+";"+exec.getError()));
+                cnt++;
             }
         }
-        else log.getItems().add(new Log("1","Ошибка","Не удалось получить изображения от "+target.getName()));
-
-        log.getItems().add(new Log("","Завершено",target.getName()+" - Синхронизация завершена"));
-
+        else log.getItems().add(new Log(cnt, "","Ошибка","Не удалось получить изображения от "+target.getName()+";"+exec.getError()));
+        cnt++;
+        log.getItems().add(new Log(cnt, "","Завершено",target.getName()+" - Синхронизация завершена"));
+        cnt++;
         addons.setDisable(false);
         sync1.setDisable(false);
         sync2.setDisable(false);
+        return cnt;
     }
 
 
 
     public void syncAll() throws IOException {
         Stage st2 = App.setScene("Log");
+        int cnt = 1;
         st2.hide();
         ListView log = (ListView) st2.getScene().lookup("#ActionLog");
         log.setCellFactory(param -> new ActionLogItems());
@@ -220,7 +220,10 @@ private Operator find(ArrayList<Operator> op, String name)
             log.getItems().clear();
         });
     for (Operator a:operators)
-        if (a.getAuthorized()) Synchronization(a,log);
+        if (a.getAuthorized()) {
+            int k = Synchronization(a,log,cnt);
+            cnt = k;
+        }
         st2.show();
     }
 

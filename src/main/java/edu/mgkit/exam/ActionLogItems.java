@@ -10,17 +10,17 @@ import javafx.scene.web.WebView;
 
 public class ActionLogItems extends ListCell<Log> {
 
-    private int index = 1;
-
         @Override protected void updateItem(Log item, boolean empty) {
             super.updateItem(item, empty);
             if ( empty || item == null ) {
                 setText(null);
                 setGraphic(null);
             } else {
-                Label lIndex = new Label(String.valueOf(index++));
+                Label lIndex = new Label(item.getIndex());
+                lIndex.setMaxWidth(50);
                 lIndex.setMinWidth(50);
                 Label lImage = new Label(item.getImage());
+                lImage.setMaxWidth(150);
                 lImage.setMinWidth(150);
                 lImage.setOnMouseClicked(eventHandler ->
                 {
@@ -30,6 +30,7 @@ public class ActionLogItems extends ListCell<Log> {
                 });
 
                 Label lResult = new Label(item.getResult());
+                lResult.setMaxWidth(150);
                 lResult.setMinWidth(150);
 
                 Label lMessage = new Label(item.getMessage());
@@ -37,13 +38,14 @@ public class ActionLogItems extends ListCell<Log> {
 
 
 
-                setGraphic(new HBox(lImage,
+                setGraphic(new HBox(lIndex,
+                        new Separator(Orientation.VERTICAL),
+                        lImage,
                         new Separator(Orientation.VERTICAL),
                         lResult,
                         new Separator(Orientation.VERTICAL),
                         lMessage));
             }
-            index++;
         }
 
 }
