@@ -1,5 +1,6 @@
 package edu.mgkit.exam;
 
+import com.google.gson.JsonElement;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
@@ -34,27 +35,35 @@ public class Param
     {
         if (!isConcatenated)
         {
-            JsonObject obj;
+            JsonElement obj;
             String res = json;
             System.out.println(res);
             System.out.println("1");
-            for (int i = 0; i< path_to_params[0].size()-1; i++)
+            for (Path a:path_to_params[0])
             {
-                Path a = path_to_params[0].get(i);
-                obj = JsonParser.parseString(res).getAsJsonObject();
-                if (a.column!=-1)
-                    if (a.column==-2)
+                obj = JsonParser.parseString(res);
+                if (a.field.equals("empty"))
+                {
+                    if (a.column != -1)
+                        if (a.column == -2)
 
-                    res = obj.get(a.field).getAsJsonArray().get(obj.get(a.field).getAsJsonArray().size()-1).toString();
-                    else res = obj.get(a.field).getAsJsonArray().get(a.column).toString();
-                else
-                    res = obj.get(a.field).toString();
+                            res = String.valueOf(obj.getAsJsonArray().get(obj.getAsJsonArray().size() - 1));
+                        else res = String.valueOf(obj.getAsJsonArray().get(a.column));
+                    else
+                        res = String.valueOf(obj);
+                }
+                else {
+                    if (a.column != -1)
+                        if (a.column == -2)
+
+                            res = String.valueOf(obj.getAsJsonObject().get(a.field).getAsJsonArray().get(obj.getAsJsonObject().get(a.field).getAsJsonArray().size() - 1));
+                        else res = String.valueOf(obj.getAsJsonObject().get(a.field).getAsJsonArray().get(a.column));
+                    else
+                        res = String.valueOf(obj.getAsJsonObject().get(a.field));
+                }
                 System.out.println(res);
             }
-            if (path_to_params[0].size()==0) return res;
-            if (res.startsWith("[")) res = JsonParser.parseString(res).getAsJsonArray().get(path_to_params[0].get(path_to_params[0].size()-2).column).getAsString();
-            else res = String.valueOf(JsonParser.parseString(res).getAsJsonObject().get(path_to_params[0].get(path_to_params[0].size()-1).field));
-            if (!res.startsWith("[")&&!res.equals("null")) res = JsonParser.parseString(res).getAsString();
+            if (res.startsWith(String.valueOf((char)34))) res = JsonParser.parseString(res).getAsString();
             System.out.println(res);
             System.out.println("2");
             return res;
@@ -64,23 +73,34 @@ public class Param
             String[] params = new String[path_to_params.length];
             for (int j = 0; j < params.length; j++)
             {
-                JsonObject obj;
+                JsonElement obj;
                 String res = json;
-                for (int i = 0; i< path_to_params[j].size()-1; i++)
+                for (Path a:path_to_params[j])
                 {
-                    Path a = path_to_params[j].get(i);
-                    obj = JsonParser.parseString(res).getAsJsonObject();
-                    if (a.column!=-1)
-                        if (a.column==-2)
+                    obj = JsonParser.parseString(res);
+                    if (a.field.equals("empty"))
+                    {
+                        if (a.column != -1)
+                            if (a.column == -2)
 
-                            res = obj.get(a.field).getAsJsonArray().get(obj.get(a.field).getAsJsonArray().size()-1).toString();
-                        else res = obj.get(a.field).getAsJsonArray().get(a.column).toString();
-                    else
-                        res = String.valueOf(obj.get(a.field));
+                                res = String.valueOf(obj.getAsJsonArray().get(obj.getAsJsonArray().size() - 1));
+                            else res = String.valueOf(obj.getAsJsonArray().get(a.column));
+                        else
+                            res = String.valueOf(obj);
+                    }
+                    else {
+                        if (a.column != -1)
+                            if (a.column == -2)
+
+                                res = String.valueOf(obj.getAsJsonObject().get(a.field).getAsJsonArray().get(obj.getAsJsonObject().get(a.field).getAsJsonArray().size() - 1));
+                            else res = String.valueOf(obj.getAsJsonObject().get(a.field).getAsJsonArray().get(a.column));
+                        else
+                            res = String.valueOf(obj.getAsJsonObject().get(a.field));
+                    }
+                    System.out.println(res);
 
                 }
-                if (res.startsWith("[")) res = JsonParser.parseString(res).getAsJsonArray().get(path_to_params[j].get(path_to_params[j].size()-2).column).getAsString();
-                else res = JsonParser.parseString(res).getAsJsonObject().get(path_to_params[j].get(path_to_params[j].size()-1).field).getAsString();
+                if (res.startsWith(String.valueOf((char)34))) res = JsonParser.parseString(res).getAsString();
                 System.out.println(res);
                 params[j] = res;
             }
@@ -96,6 +116,6 @@ public class Param
 
     public boolean checkError(String json)
     {
-        return (!execute(json).equals("null") &&execute(json).equals(name));
+        return (!execute(json).equals("null") && execute(json).equals(name));
     }
 }

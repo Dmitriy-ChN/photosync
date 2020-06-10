@@ -40,12 +40,13 @@ public class Operator {
         this.image_name = image_name;
     }
 
-    private static HashMap<String,String> access_results = new HashMap<>();
-    private static ArrayList<String> photo_links = new ArrayList<>();
+    private HashMap<String,String> access_results;
+    private ArrayList<String> photo_links = new ArrayList<>();
 
     private static boolean isAuthorized = false;
 
     public void aut(OperatorButton butt) {
+        access_results = new HashMap<>();
         Stage st = (Stage) butt.getScene().getWindow();
        st.getScene().getRoot().setDisable(true);
         final WebView view = new WebView();
@@ -66,6 +67,7 @@ public class Operator {
                    access_results.put(a,s);
                 }
                 st.getScene().getRoot().setDisable(false);
+                st.show();
                 isAuthorized = true;
                 butt.setActive();
                 st2.close();

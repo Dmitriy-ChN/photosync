@@ -30,10 +30,6 @@ public class OperatorButton extends Button {
             icon.setImage(img2);
         }
         this.setGraphic(icon);
-        this.setOnAction( eventHandler ->
-        {
-            if (op.getRequired()) op.aut(this);
-        });
     }
 
     public void setActive()

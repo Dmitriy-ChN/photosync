@@ -86,7 +86,7 @@ public class Executer {
                 try {
                     CloseableHttpResponse response = httpClient.execute(httpGet);
                     HttpEntity entity = response.getEntity();
-                    json = EntityUtils.toString(entity);
+                    json = JsonParser.parseString(EntityUtils.toString(entity)).toString();
                     System.out.println(json);
                     if (meth.error.checkError(json))
                     {

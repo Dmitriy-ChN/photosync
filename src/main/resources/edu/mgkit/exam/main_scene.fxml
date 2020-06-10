@@ -5,24 +5,25 @@
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
-<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="619.0" prefWidth="847.0" style="-fx-background-color: #DDFFFF;" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="edu.mgkit.exam.MainController">
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="710.0" prefWidth="847.0" style="-fx-background-color: #DDFFFF;" xmlns="http://javafx.com/javafx/10.0.2-internal" xmlns:fx="http://javafx.com/fxml/1" fx:controller="edu.mgkit.exam.MainController">
    <children>
-      <FlowPane fx:id="modulePane" layoutX="433.0" layoutY="132.0" prefHeight="320.0" prefWidth="400.0" style="-fx-background-color: #00AACC;" />
+      <FlowPane fx:id="modulePane" layoutX="440.0" layoutY="132.0" prefHeight="320.0" prefWidth="400.0" style="-fx-background-color: #00AACC;" />
       <Label layoutX="517.0" layoutY="74.0" prefHeight="58.0" prefWidth="267.0" text="Подключенные модули" textAlignment="CENTER" wrapText="true">
          <font>
             <Font name="Verdana Bold" size="18.0" />
          </font></Label>
       <Button fx:id="addons" layoutX="568.0" layoutY="483.0" mnemonicParsing="false" onAction="#openMenu" text="Подключить модули" />
-      <Button fx:id="sync1" layoutX="21.0" layoutY="508.0" mnemonicParsing="false" onAction="#syncOne" text="Синхронизировать с одного источника" />
-      <Button fx:id="sync2" layoutX="22.0" layoutY="568.0" mnemonicParsing="false" onAction="#syncAll" text="Синхронизировать со всех источников" />
-      <ImageView fx:id="CurrentMod" fitHeight="250.0" fitWidth="250.0" layoutX="22.0" layoutY="132.0" pickOnBounds="true" preserveRatio="true">
+      <Button fx:id="sync1" layoutX="20.0" layoutY="612.0" mnemonicParsing="false" onAction="#syncOne" text="Синхронизировать с одного источника" />
+      <Button fx:id="sync2" layoutX="21.0" layoutY="671.0" mnemonicParsing="false" onAction="#syncAll" text="Синхронизировать со всех источников" />
+      <ImageView fx:id="CurrentMod" fitHeight="250.0" fitWidth="250.0" layoutX="20.0" layoutY="132.0" pickOnBounds="true" preserveRatio="true">
          <image>
             <Image url="@pictures/mod1.png" />
          </image></ImageView>
-      <Label fx:id="MessageText" layoutX="23.0" layoutY="392.0" prefHeight="46.0" prefWidth="248.0" text="Label">
+      <Label fx:id="MessageText" layoutX="20.0" layoutY="392.0" prefHeight="46.0" prefWidth="248.0" text="Приветствуем в нашей программе! Не забудь подключить модули" wrapText="true">
          <font>
             <Font size="14.0" />
          </font>
       </Label>
+      <ImageView fx:id="nyan" fitHeight="150.0" fitWidth="150.0" layoutX="20.0" layoutY="452.0" pickOnBounds="true" preserveRatio="true" />
    </children>
 </Pane>
