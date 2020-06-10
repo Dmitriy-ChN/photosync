@@ -22,137 +22,129 @@ import java.util.HashMap;
 
 public class Executer {
     HashMap<String, String> required_results = new HashMap<>();
-    String last;
+    String lastParameter;
     CloseableHttpClient httpClient = HttpClients.createDefault();
     HttpGet httpGet;
     HttpPost httpPost;
-    StringBuilder url = new StringBuilder();
+    StringBuilder requestURL = new StringBuilder();
     String json;
     JsonObject obj;
     String error;
 
-    public int executeRequest(Operator op, String type, int it, String image){
+    public int executeRequest(Operator currentOperator, String type, int number, String imageURL){
         error = "";
-        Request meth = op.getMethod(type, it);
-        System.out.println(meth.link);
-        switch (meth.type) {
+        Request request = currentOperator.getRequest(type, number);
+        switch (request.type) {
             case "NEXT":
-                System.out.println(required_results.get(last));
-                JsonArray arr = JsonParser.parseString(required_results.get(last)).getAsJsonArray();
-                String res;
+                JsonArray arr = JsonParser.parseString(required_results.get(lastParameter)).getAsJsonArray();
+                String result;
                 ArrayList<String> links = new ArrayList<>();
                 System.out.println("next");
-                int k = arr.size();
-                for (int i = 0; i < k; i++)
+                for (int i = 0; i < arr.size(); i++)
                 {
-                    res = arr.get(i).toString();
-                    for (int j = 0; j< op.getPath_to_url().length-1; j++)
+                    result = arr.get(i).toString();
+                    for (int j = 0; j< currentOperator.getPath_to_url().length-1; j++)
                 {
-                    Path a = op.getPath_to_url()[j];
-                    obj = JsonParser.parseString(res).getAsJsonObject();
-                    if (a.column!=-1)
-                        if (a.column==-2)
+                    Path valuePath = currentOperator.getPath_to_url()[j];
+                    obj = JsonParser.parseString(result).getAsJsonObject();
+                    if (valuePath.column!=-1)
+                        if (valuePath.column==-2)
 
-                            res = obj.get(a.field).getAsJsonArray().get(obj.get(a.field).getAsJsonArray().size()-1).toString();
-                        else res = obj.get(a.field).getAsJsonArray().get(a.column).toString();
+                            result = obj.get(valuePath.field).getAsJsonArray().get(obj.get(valuePath.field).getAsJsonArray().size()-1).toString();
+                        else result = obj.get(valuePath.field).getAsJsonArray().get(valuePath.column).toString();
                     else
-                        res = obj.get(a.field).getAsJsonObject().toString();
+                        result = obj.get(valuePath.field).getAsJsonObject().toString();
 
                 }
-                if (res.startsWith("\"[")) res = JsonParser.parseString(res).getAsJsonArray().get(op.getPath_to_url()[op.getPath_to_url().length-2].column).getAsString();
-                else res = JsonParser.parseString(res).getAsJsonObject().get(op.getPath_to_url()[op.getPath_to_url().length-1].field).getAsString();
+                if (result.startsWith("\"[")) result = JsonParser.parseString(result).getAsJsonArray().get(currentOperator.getPath_to_url()[currentOperator.getPath_to_url().length-2].column).getAsString();
+                else result = JsonParser.parseString(result).getAsJsonObject().get(currentOperator.getPath_to_url()[currentOperator.getPath_to_url().length-1].field).getAsString();
 
-                    System.out.println(res);
-                    links.add(res);
+                    links.add(result);
                 }
-                op.setLinks(links);
-                System.out.println(links.toString());
+                currentOperator.setLinks(links);
                 return 1;
             case "END":
-                System.out.println("Next photo");
-                String code = required_results.get(last);
-                if (code.equals(op.getSuccess())) return 1;
+                String code = required_results.get(lastParameter);
+                if (code.equals(currentOperator.getSuccess())) return 1;
                 return -1;
             case "GET":
-                url = new StringBuilder(meth.link);
-                for (Path a : meth.required_params) {
-                    url.append('&');
-                    url.append(a.field);
-                    url.append('=');
-                    url.append(URLEncoder.encode(required_results.get(a.field),StandardCharsets.UTF_8));
-                    System.out.println(url.toString());
+                requestURL = new StringBuilder(request.link);
+                for (Path a : request.required_params) {
+                    requestURL.append('&');
+                    requestURL.append(a.field);
+                    requestURL.append('=');
+                    requestURL.append(URLEncoder.encode(required_results.get(a.field),StandardCharsets.UTF_8));
+                    System.out.println(requestURL.toString());
                 }
-                httpGet = new HttpGet(url.toString());
+                httpGet = new HttpGet(requestURL.toString());
                 try {
                     CloseableHttpResponse response = httpClient.execute(httpGet);
                     HttpEntity entity = response.getEntity();
                     json = JsonParser.parseString(EntityUtils.toString(entity)).toString();
                     System.out.println(json);
-                    if (meth.error.checkError(json))
+                    if (request.error.checkError(json))
                     {
-                        if (meth.error_message!=null) {
-                            meth.error_message.addParam(json, this);
-                            error = required_results.get(last);
+                        if (request.error_message!=null) {
+                            request.error_message.addParam(json, this);
+                            error = required_results.get(lastParameter);
                         }
                         return -2;
                     }
-                        for (Param param : meth.results)
-                        param.addParam(json, this);
-                    return executeRequest(op, type, it + 1, image);
+                        for (Param parameter : request.results)
+                        parameter.addParam(json, this);
+                    return executeRequest(currentOperator, type, number + 1, imageURL);
                 } catch (Exception e) {
                     error = "inner error";
                     e.printStackTrace();
                     return 3;
                 }
             case "POST":
-                if (op.hasPost())
-                url = new StringBuilder(meth.link);
-                else url = new StringBuilder(required_results.get(meth.link));
-                if (url.toString().startsWith((String.valueOf((char)34)))) url = new StringBuilder(url.toString().substring(1,url.toString().length()-1));
-                System.out.println(url.toString());
+                if (currentOperator.hasPost())
+                requestURL = new StringBuilder(request.link);
+                else requestURL = new StringBuilder(required_results.get(request.link));
+                if (requestURL.toString().startsWith((String.valueOf((char)34)))) requestURL = new StringBuilder(requestURL.toString().substring(1, requestURL.toString().length()-1));
                 MultipartEntityBuilder mpeBuilder = MultipartEntityBuilder.create();
-                required_results.put(op.getImageName(),image);
+                required_results.put(currentOperator.getImageName(),imageURL);
                 try {
-                for (Path a : meth.required_params) {
-                    if (a.column==0)
+                for (Path parameter : request.required_params) {
+                    if (parameter.column==0)
                     {
-                        url.append('&');
-                        url.append(a.field);
-                        url.append('=');
-                        url.append(URLEncoder.encode(required_results.get(a.field), StandardCharsets.UTF_8));
+                        requestURL.append('&');
+                        requestURL.append(parameter.field);
+                        requestURL.append('=');
+                        requestURL.append(URLEncoder.encode(required_results.get(parameter.field), StandardCharsets.UTF_8));
                     }
-                    else if (a.column==1)
+                    else if (parameter.column==1)
                     {
-                        mpeBuilder.addTextBody(a.field,required_results.get(a.field));
+                        mpeBuilder.addTextBody(parameter.field,required_results.get(parameter.field));
                     }
-                    else if (a.column==2)
+                    else if (parameter.column==2)
                     {
                         String tDir = System.getProperty("java.io.tmpdir");
                         String path2 = tDir + "tmp" + ".jpg";
                         File file = new File(path2);
                         file.deleteOnExit();
-                        FileUtils.copyURLToFile(new URL(required_results.get(a.field)), file);
-                        mpeBuilder.addBinaryBody(a.field, file);
+                        FileUtils.copyURLToFile(new URL(required_results.get(parameter.field)), file);
+                        mpeBuilder.addBinaryBody(parameter.field, file);
                     }
                 }
-                System.out.println(url.toString());
-                httpPost = new HttpPost(url.toString());
+                httpPost = new HttpPost(requestURL.toString());
                     httpPost.setEntity(mpeBuilder.build());
                     try {
                         CloseableHttpResponse response2 = httpClient.execute(httpPost);
                         HttpEntity entity2 = response2.getEntity();
                         json = EntityUtils.toString(entity2);
-                        if (meth.error.checkError(json))
+                        if (request.error.checkError(json))
                         {
-                            if (meth.error_message!=null) {
-                                meth.error_message.addParam(json, this);
-                                error = required_results.get(last);
+                            if (request.error_message!=null) {
+                                request.error_message.addParam(json, this);
+                                error = required_results.get(lastParameter);
                             }
                             return -2;
                         }
-                            for (Param param : meth.results)
+                            for (Param param : request.results)
                                 param.addParam(json, this);
-                            return executeRequest(op, type, it + 1, image);
+                            return executeRequest(currentOperator, type, number + 1, imageURL);
                     } catch (Exception e) {
                         error = "inner error";
                         e.printStackTrace();
@@ -176,7 +168,8 @@ public class Executer {
             required_results.put(a,results.get(a));
     }
 
-    public void setLast(String last_) {last = last_;}
+    public void setLastParameter(String last_) {
+        lastParameter = last_;}
 
     public String getError() {return error;}
 }

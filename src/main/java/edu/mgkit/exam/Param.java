@@ -1,7 +1,6 @@
 package edu.mgkit.exam;
 
 import com.google.gson.JsonElement;
-import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 
 import java.util.ArrayList;
@@ -20,14 +19,14 @@ public class Param
         this.path_to_params = path_to_params;
     }
 
-    private String interpolation (String s, String[] args)
+    private String interpolation (String template, String[] args)
     {
         StringBuilder res = new StringBuilder();
         int q = 0;
         for (String a:args)
         {
-            res.append(s, q, s.indexOf('%', q)).append(a);
-            q = s.indexOf('%',q)+2;
+            res.append(template, q, template.indexOf('%', q)).append(a);
+            q = template.indexOf('%',q)+2;
         }
         return res.toString();
     }
@@ -111,7 +110,7 @@ public class Param
     public void addParam(String json, Executer exec)
     {
         exec.required_results.put(name,execute(json));
-        exec.setLast(name);
+        exec.setLastParameter(name);
     }
 
     public boolean checkError(String json)

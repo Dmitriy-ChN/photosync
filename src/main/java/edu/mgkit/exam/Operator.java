@@ -87,14 +87,14 @@ public class Operator {
         return photo_links;
     }
 
-    public Request getMethod(String s, int i)
+    public Request getRequest(String requestType, int requestNumber)
     {
-        switch (s)
+        switch (requestType)
         {
-            case "GET": if (i>=get_photos.length) return new Request("NEXT");
-            else return get_photos[i];
-            case "POST": if (i>=post_photos.length) return new Request("END");
-            else return post_photos[i];
+            case "GET": if (requestNumber>=get_photos.length) return new Request("NEXT");
+            else return get_photos[requestNumber];
+            case "POST": if (requestNumber>=post_photos.length) return new Request("END");
+            else return post_photos[requestNumber];
         }
         return new Request("ERROR");
     }

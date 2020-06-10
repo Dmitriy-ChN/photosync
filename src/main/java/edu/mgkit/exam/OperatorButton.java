@@ -12,11 +12,11 @@ public class OperatorButton extends Button {
         return this.operator;
     }
 
-    public void setOperator(Operator op)
+    public void setOperator(Operator newOperator)
     {
-        this.operator = op;
+        this.operator = newOperator;
         ImageView icon = new ImageView(new Image(operator.getImage(),40,40,false,false));
-        if (op.getRequired()) {
+        if (newOperator.getRequired()) {
 
             PixelReader pxl = icon.getImage().getPixelReader();
             WritableImage img2 = new WritableImage((int)icon.getImage().getWidth(),(int)icon.getImage().getHeight());

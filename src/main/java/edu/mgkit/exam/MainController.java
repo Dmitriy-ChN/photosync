@@ -45,11 +45,10 @@ private ArrayList<Operator> operators = new ArrayList<>()
 private boolean Stop;
 
 
-
-private Operator find(ArrayList<Operator> op, String name)
+private Operator find(ArrayList<Operator> operatorsList, String name)
 {
-    for (Operator a:op)
-        if (a.getName().equals(name)) return a;
+    for (Operator iterator:operatorsList)
+        if (iterator.getName().equals(name)) return iterator;
         return null;
 }
 
@@ -61,11 +60,11 @@ private Operator find(ArrayList<Operator> op, String name)
         st2.setOnCloseRequest(windowEvent -> mainStage.getScene().getRoot().setDisable(false));
         ListView elements = (ListView) st2.getScene().lookup("#elements");
         Button activate = (Button) st2.getScene().lookup("#activate");
-        String url = App.class.getProtectionDomain().getCodeSource().getLocation().getPath();
-        File folder = new File(url);
-        url = folder.getParentFile().getPath()+"\\modules\\";
+        String pathToFolder = App.class.getProtectionDomain().getCodeSource().getLocation().getPath();
+        File folder = new File(pathToFolder);
+        pathToFolder = folder.getParentFile().getPath()+"\\modules\\";
 
-        folder = new File(url);
+        folder = new File(pathToFolder);
         FileFilter filter = pathname -> pathname.toString().contains("json");
          File[] files = folder.listFiles(filter);
         Gson gson = new Gson();
@@ -76,50 +75,43 @@ private Operator find(ArrayList<Operator> op, String name)
             int i;
             StringBuilder json = new StringBuilder();
             while ((i=reader.read())!=-1) json.append((char)i);
-            Operator op = gson.fromJson(json.toString(),Operator.class);
-            System.out.println(op.getName());
-            System.out.println(op.getImage());
-            System.out.println(op.getAuthorized());
-            System.out.println(op.getMethod("GET",0).link);
-            System.out.println(op.getMethod("POST",0).link);
-            new_operators.add(op);
+            Operator newOperator = gson.fromJson(json.toString(),Operator.class);
+            new_operators.add(newOperator);
         }
-        for (Operator a:new_operators)
+        for (Operator currentOperator:new_operators)
         {
-            CheckBox b = new CheckBox(a.getName());
-            boolean q = false;
-            for (Object p:operators)
+            CheckBox chooseForOperator = new CheckBox(currentOperator.getName());
+            boolean opetarorIsActive = false;
+            for (Object node:operators)
             {
-                Operator c = (Operator)p;
-                Operator d = a;
-                if (c.getName().equals(d.getName())) {q = true;break;}
+                Operator iterator = (Operator)node;
+                if (iterator.getName().equals(currentOperator.getName())) {opetarorIsActive = true;break;}
             }
-            if (q) b.setSelected(true);
+            if (opetarorIsActive) chooseForOperator.setSelected(true);
             ObservableList items = elements.getItems();
-            items.add(b);
+            items.add(chooseForOperator);
             elements.setItems(items);
         }
 
         activate.setOnAction(actionEvent12 -> {
             modulePane.getChildren().clear();
             ObservableList items = elements.getItems();
-            for (Object q:items)
+            for (Object itemsNode:items)
             {
-                CheckBox q2 = (CheckBox)q;
-                if (q2.isSelected()) {
-                    String name = q2.getText();
-                        OperatorButton butt = new OperatorButton();
-                        butt.setOperator(find(new_operators,name));
-                    butt.setOnAction( eventHandler ->
+                CheckBox checkForOperator = (CheckBox)itemsNode;
+                if (checkForOperator.isSelected()) {
+                    String operatorName = checkForOperator.getText();
+                        OperatorButton operatorIcon = new OperatorButton();
+                        operatorIcon.setOperator(find(new_operators,operatorName));
+                    operatorIcon.setOnAction( eventHandler ->
                     {
-                        if (butt.getOperator().getRequired()) butt.getOperator().aut(butt);
+                        if (operatorIcon.getOperator().getRequired()) operatorIcon.getOperator().aut(operatorIcon);
                         mainStage.setOnShowing(windowEvent -> {
                             checkAuthorization();
                         });
                         checkAuthorization();
                     });
-                        System.out.println(butt.getOperator().getImage());
-                        modulePane.getChildren().add(butt);
+                        modulePane.getChildren().add(operatorIcon);
                 }
             }
             operators = new_operators;
@@ -128,8 +120,8 @@ private Operator find(ArrayList<Operator> op, String name)
             st2.close();
             mainStage.getScene().getRoot().setDisable(false);
             operators.clear();
-            for (Object q: modulePane.getChildren())
-                operators.add(((OperatorButton)q).getOperator());
+            for (Object moduleNode: modulePane.getChildren())
+                operators.add(((OperatorButton)moduleNode).getOperator());
             if (operators.size()<=1)
             {
                 CurrentMod.setImage(new Image(getClass().getResourceAsStream("pictures/mod6.jpg"),CurrentMod.getFitWidth(),CurrentMod.getFitHeight(),false,false));
@@ -141,50 +133,47 @@ private Operator find(ArrayList<Operator> op, String name)
 
     public void syncOne() throws IOException {
         Stage mainStage = (Stage) modulePane.getScene().getWindow();
-        Stage st2 = App.setScene("choose_service");
+        Stage chooseOperator = App.setScene("choose_service");
         mainStage.getScene().getRoot().setDisable(true);
-        st2.setOnCloseRequest(windowEvent -> mainStage.getScene().getRoot().setDisable(false));
-        ListView elements = (ListView) st2.getScene().lookup("#elements");
-        Button activate = (Button) st2.getScene().lookup("#activate");
+        chooseOperator.setOnCloseRequest(windowEvent -> mainStage.getScene().getRoot().setDisable(false));
+        ListView elements = (ListView) chooseOperator.getScene().lookup("#elements");
+        Button activate = (Button) chooseOperator.getScene().lookup("#activate");
         ToggleGroup group = new ToggleGroup();
-        for (Operator a:operators)
+        for (Operator currentOperator:operators)
         {
-            if (a.getAuthorized())
+            if (currentOperator.getAuthorized())
             {
-                RadioButton b = new RadioButton(a.getName());
+                RadioButton b = new RadioButton(currentOperator.getName());
                 b.setToggleGroup(group);
                 ObservableList items = elements.getItems();
                 items.add(b);
                 elements.setItems(items);
             }
-
-
         }
         activate.setOnAction(actionEvent -> {
-            Operator targ;
-            RadioButton q = (RadioButton) group.getSelectedToggle();
-            targ = find(operators,q.getText());
-            final Operator targ2 = targ;
+            Operator target;
+            RadioButton selectedOperator = (RadioButton) group.getSelectedToggle();
+            target = find(operators,selectedOperator.getText());
             elements.getItems().clear();
-            st2.close();
+            chooseOperator.close();
             mainStage.getScene().getRoot().setDisable(false);
             try {
-                Stage st3 = App.setScene("Log");
-                st3.hide();
-                ListView<Log> log = (ListView<Log>) st3.getScene().lookup("#ActionLog");
-                log.setCellFactory(param -> new ActionLogItems());
-                st3.setOnCloseRequest(windowEvent -> {
-                    log.getItems().clear();
+                Stage logsScene = App.setScene("Log");
+                ListView<Log> logList = (ListView<Log>) logsScene.getScene().lookup("#ActionLog");
+                logList.setCellFactory(param -> new ActionLogItems());
+                logsScene.setOnCloseRequest(windowEvent -> {
+                    logList.getItems().clear();
                 });
-                if (targ != null)
+                if (target != null)
                 {
+                    final Operator operator = target;
                     CurrentMod.setImage(new Image(getClass().getResourceAsStream("pictures/mod2.gif"),CurrentMod.getFitWidth(),CurrentMod.getFitHeight(),false,false));
                     MessageText.setText("Ждем...");
-                    Thread newThread = new Thread(() -> {
-                        Synchronization(targ2,log,1);
+                    Thread threadForOne = new Thread(() -> {
+                        Synchronization(operator,logList,1);
                         CurrentMod.setImage(new Image(getClass().getResourceAsStream("pictures/mod3.jpg"),CurrentMod.getFitWidth(),CurrentMod.getFitHeight(),false,false));
                         MessageText.setText("Успешно");
-                        for (Log a:log.getItems())
+                        for (Log a:logList.getItems())
                         {
                             if (a.getResult().equals("Ошибка"))
                             {
@@ -193,9 +182,9 @@ private Operator find(ArrayList<Operator> op, String name)
                             }
                         }
                     });
-                    newThread.start();
+                    threadForOne.start();
                 }
-                st3.show();
+                logsScene.show();
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -209,17 +198,17 @@ private Operator find(ArrayList<Operator> op, String name)
     {
         nyan.setImage(new Image(getClass().getResourceAsStream("pictures/loading.gif"),nyan.getFitWidth(),nyan.getFitHeight(),false,false));
         Stop = false;
-        Thread newThread = new Thread(() -> {
-            double a = 5;
-            int b = 1;
+        Thread nyanThread = new Thread(() -> {
+            double shift = 5;
+            int way = 1;
             while (!Stop)
             {
-                nyan.setLayoutX(nyan.getLayoutX()+a);
+                nyan.setLayoutX(nyan.getLayoutX()+shift);
                 if (nyan.getLayoutX()>=270||nyan.getLayoutX()<=20)
                 {
-                    a *= -1;
-                    b *= -1;
-                    nyan.setScaleX(b);
+                    shift *= -1;
+                    way *= -1;
+                    nyan.setScaleX(way);
                 }
                 try {
                     Thread.sleep(300);
@@ -229,35 +218,35 @@ private Operator find(ArrayList<Operator> op, String name)
             }
 
         });
-        newThread.start();
+        nyanThread.start();
         addons.setDisable(true);
         sync1.setDisable(true);
         sync2.setDisable(true);
-        Executer exec = new Executer();
-        Comparer comp = new Comparer();
+        Executer mainExecuter = new Executer();
+        Comparer mainComparer = new Comparer();
         ArrayList<Operator> actionable = new ArrayList<>();
-        for (Operator a:operators)
-            if (a.getAuthorized()||!a.getRequired()) actionable.add(a);
+        for (Operator iterator:operators)
+            if (iterator.getAuthorized()||!iterator.getRequired()) actionable.add(iterator);
             actionable.remove(target);
-        exec.setAccess(target);
-        int k = exec.executeRequest(target,"GET",0,"");
-        if (k==1)
+        mainExecuter.setAccess(target);
+        int operationResult = mainExecuter.executeRequest(target,"GET",0,"");
+        if (operationResult==1)
         {
             ArrayList<String> images = target.getLinks();
-            for (Operator a:actionable)
+            for (Operator current:actionable)
             {
-                exec.setAccess(a);
-                k = exec.executeRequest(a,"GET",0,"");
-                if (k==1)
+                mainExecuter.setAccess(current);
+                operationResult = mainExecuter.executeRequest(current,"GET",0,"");
+                if (operationResult==1)
                 {
-                    ArrayList<String> images2 = a.getLinks();
-                    for (String i:images)
+                    ArrayList<String> comperableImages = current.getLinks();
+                    for (String currentImage:images)
                     {
-                        boolean b = comp.compare(i,images2);
-                        if (!b) {
-                            k = exec.executeRequest(a,"POST",0,i);
-                        if (k==1) log.getItems().add(new Log(cnt, i,"Успешно",target.getName()+" -> "+a.getName()));
-                        else log.getItems().add(new Log(cnt, i,"Ошибка","Не удалось опубликовать изображения с сайта "+target.getName()+" на сайт "+a.getName()+";"+exec.getError()));
+                        boolean areEqual = mainComparer.compare(currentImage,comperableImages);
+                        if (!areEqual) {
+                            operationResult = mainExecuter.executeRequest(current,"POST",0,currentImage);
+                        if (operationResult==1) log.getItems().add(new Log(cnt, currentImage,"Успешно",target.getName()+" -> "+current.getName()));
+                        else log.getItems().add(new Log(cnt, currentImage,"Ошибка","Не удалось опубликовать изображения с сайта "+target.getName()+" на сайт "+current.getName()+";"+mainExecuter.getError()));
                         }
                         try {
                             Thread.sleep(500);
@@ -266,11 +255,11 @@ private Operator find(ArrayList<Operator> op, String name)
                         }
                     }
                 }
-                else log.getItems().add(new Log(cnt, "","Ошибка","Не удалось получить изображения от "+a.getName()+";"+exec.getError()));
+                else log.getItems().add(new Log(cnt, "","Ошибка","Не удалось получить изображения от "+current.getName()+";"+mainExecuter.getError()));
                 cnt++;
             }
         }
-        else log.getItems().add(new Log(cnt, "","Ошибка","Не удалось получить изображения от "+target.getName()+";"+exec.getError()));
+        else log.getItems().add(new Log(cnt, "","Ошибка","Не удалось получить изображения от "+target.getName()+";"+mainExecuter.getError()));
         cnt++;
         log.getItems().add(new Log(cnt, "","Завершено",target.getName()+" - Синхронизация завершена"));
         cnt++;
@@ -285,20 +274,20 @@ private Operator find(ArrayList<Operator> op, String name)
 
 
     public void syncAll() throws IOException {
-        Stage st2 = App.setScene("Log");
-        st2.hide();
-        ListView<Log> log = (ListView<Log>) st2.getScene().lookup("#ActionLog");
+        Stage logsScene = App.setScene("Log");
+        logsScene.hide();
+        ListView<Log> log = (ListView<Log>) logsScene.getScene().lookup("#ActionLog");
         log.setCellFactory(param -> new ActionLogItems());
-        st2.setOnCloseRequest(windowEvent -> {
+        logsScene.setOnCloseRequest(windowEvent -> {
             log.getItems().clear();
         });
             CurrentMod.setImage(new Image(getClass().getResourceAsStream("pictures/mod2.gif"),CurrentMod.getFitWidth(),CurrentMod.getFitHeight(),false,false));
             MessageText.setText("Ждем...");
             Thread newThread = new Thread(() -> {
-                int cnt = 1;
+                int logIndex = 1;
                 for (Operator a:operators)
                     if (a.getAuthorized()) {
-                        cnt = Synchronization(a,log,cnt);
+                        logIndex = Synchronization(a,log,logIndex);
                     }
                 CurrentMod.setImage(new Image(getClass().getResourceAsStream("pictures/mod3.jpg"),CurrentMod.getFitWidth(),CurrentMod.getFitHeight(),false,false));
                 MessageText.setText("Успешно");
@@ -312,14 +301,14 @@ private Operator find(ArrayList<Operator> op, String name)
                 }
             });
             newThread.start();
-        st2.show();
+        logsScene.show();
     }
 
     private void checkAuthorization()
     {
         boolean allAut = true;
-        for (Operator a:operators)
-            if (!a.getAuthorized()&&a.getRequired()) allAut = false;
+        for (Operator iterator:operators)
+            if (!iterator.getAuthorized()&&iterator.getRequired()) allAut = false;
         if (!allAut)
         {
             CurrentMod.setImage(new Image(getClass().getResourceAsStream("pictures/mod7.jpg"), CurrentMod.getFitWidth(), CurrentMod.getFitHeight(), false, false));
