@@ -4,7 +4,7 @@
   <groupId>edu.mgkit.exam</groupId>
   <artifactId>photosync</artifactId>
   <name>PhotoSync</name>
-  <version>1.0</version>
+  <version>1.1</version>
   <build>
     <plugins>
       <plugin>

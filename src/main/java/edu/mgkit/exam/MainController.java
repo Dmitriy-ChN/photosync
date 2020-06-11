@@ -1,6 +1,7 @@
 package edu.mgkit.exam;
 
 import com.google.gson.*;
+import javafx.application.Platform;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
@@ -171,16 +172,12 @@ private Operator find(ArrayList<Operator> operatorsList, String name)
                     MessageText.setText("Ждем...");
                     Thread threadForOne = new Thread(() -> {
                         Synchronization(operator,logList,1);
-                        CurrentMod.setImage(new Image(getClass().getResourceAsStream("pictures/mod3.jpg"),CurrentMod.getFitWidth(),CurrentMod.getFitHeight(),false,false));
-                        MessageText.setText("Успешно");
-                        for (Log a:logList.getItems())
-                        {
-                            if (a.getResult().equals("Ошибка"))
-                            {
-                                CurrentMod.setImage(new Image(getClass().getResourceAsStream("pictures/mod4.png"),CurrentMod.getFitWidth(),CurrentMod.getFitHeight(),false,false));
-                                MessageText.setText("Ничто не идеально");
+                        Platform.runLater(new Runnable() {
+                            @Override
+                            public void run() {
+                                checkResults(logList);
                             }
-                        }
+                        });
                     });
                     threadForOne.start();
                 }
@@ -244,8 +241,11 @@ private Operator find(ArrayList<Operator> operatorsList, String name)
                     {
                         boolean areEqual = mainComparer.compare(currentImage,comperableImages);
                         if (!areEqual) {
+
                             operationResult = mainExecuter.executeRequest(current,"POST",0,currentImage);
-                        if (operationResult==1) log.getItems().add(new Log(cnt, currentImage,"Успешно",target.getName()+" -> "+current.getName()));
+
+                        if (operationResult==1)
+                            log.getItems().add(new Log(cnt, currentImage,"Успешно",target.getName()+" -> "+current.getName()));
                         else log.getItems().add(new Log(cnt, currentImage,"Ошибка","Не удалось опубликовать изображения с сайта "+target.getName()+" на сайт "+current.getName()+";"+mainExecuter.getError()));
                         }
                         try {
@@ -276,10 +276,10 @@ private Operator find(ArrayList<Operator> operatorsList, String name)
     public void syncAll() throws IOException {
         Stage logsScene = App.setScene("Log");
         logsScene.hide();
-        ListView<Log> log = (ListView<Log>) logsScene.getScene().lookup("#ActionLog");
-        log.setCellFactory(param -> new ActionLogItems());
+        ListView<Log> logList = (ListView<Log>) logsScene.getScene().lookup("#ActionLog");
+        logList.setCellFactory(param -> new ActionLogItems());
         logsScene.setOnCloseRequest(windowEvent -> {
-            log.getItems().clear();
+            logList.getItems().clear();
         });
             CurrentMod.setImage(new Image(getClass().getResourceAsStream("pictures/mod2.gif"),CurrentMod.getFitWidth(),CurrentMod.getFitHeight(),false,false));
             MessageText.setText("Ждем...");
@@ -287,18 +287,14 @@ private Operator find(ArrayList<Operator> operatorsList, String name)
                 int logIndex = 1;
                 for (Operator a:operators)
                     if (a.getAuthorized()) {
-                        logIndex = Synchronization(a,log,logIndex);
+                        logIndex = Synchronization(a,logList,logIndex);
                     }
-                CurrentMod.setImage(new Image(getClass().getResourceAsStream("pictures/mod3.jpg"),CurrentMod.getFitWidth(),CurrentMod.getFitHeight(),false,false));
-                MessageText.setText("Успешно");
-                for (Log a:log.getItems())
-                {
-                    if (a.getResult().equals("Ошибка"))
-                    {
-                        CurrentMod.setImage(new Image(getClass().getResourceAsStream("pictures/mod4.png"),CurrentMod.getFitWidth(),CurrentMod.getFitHeight(),false,false));
-                        MessageText.setText("Ничто не идеально");
+                Platform.runLater(new Runnable() {
+                    @Override
+                    public void run() {
+                        checkResults(logList);
                     }
-                }
+                });
             });
             newThread.start();
         logsScene.show();
@@ -318,6 +314,20 @@ private Operator find(ArrayList<Operator> operatorsList, String name)
         {
             CurrentMod.setImage(new Image(getClass().getResourceAsStream("pictures/mod5.jpg"), CurrentMod.getFitWidth(), CurrentMod.getFitHeight(), false, false));
             MessageText.setText("Теперь можно начинать");
+        }
+    }
+
+    private void checkResults(ListView<Log> log)
+    {
+        CurrentMod.setImage(new Image(getClass().getResourceAsStream("pictures/mod3.jpg"),CurrentMod.getFitWidth(),CurrentMod.getFitHeight(),false,false));
+        MessageText.setText("Успешно");
+        for (Log a:log.getItems())
+        {
+            if (a.getResult().equals("Ошибка"))
+            {
+                CurrentMod.setImage(new Image(getClass().getResourceAsStream("pictures/mod4.png"),CurrentMod.getFitWidth(),CurrentMod.getFitHeight(),false,false));
+                MessageText.setText("Ничто не идеально");
+            }
         }
     }
 

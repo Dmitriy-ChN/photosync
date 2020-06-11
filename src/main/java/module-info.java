@@ -8,6 +8,7 @@ module edu.mgkit.exam {
     requires org.apache.httpcomponents.httpmime;
     requires org.apache.commons.io;
     requires org.apache.commons.codec;
+    requires org.apache.httpcomponents.httpclient.fluent;
 
     opens edu.mgkit.exam to javafx.fxml,com.google.gson;
     exports edu.mgkit.exam;

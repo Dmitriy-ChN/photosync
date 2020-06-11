@@ -4,14 +4,7 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import org.apache.commons.io.FileUtils;
-import org.apache.http.HttpEntity;
-import org.apache.http.client.methods.CloseableHttpResponse;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.client.methods.HttpPost;
 import org.apache.http.entity.mime.MultipartEntityBuilder;
-import org.apache.http.impl.client.CloseableHttpClient;
-import org.apache.http.impl.client.HttpClients;
-import org.apache.http.util.EntityUtils;
 
 import java.io.File;
 import java.net.URL;
@@ -23,9 +16,6 @@ import java.util.HashMap;
 public class Executer {
     HashMap<String, String> required_results = new HashMap<>();
     String lastParameter;
-    CloseableHttpClient httpClient = HttpClients.createDefault();
-    HttpGet httpGet;
-    HttpPost httpPost;
     StringBuilder requestURL = new StringBuilder();
     String json;
     JsonObject obj;
@@ -76,12 +66,9 @@ public class Executer {
                     requestURL.append(URLEncoder.encode(required_results.get(a.field),StandardCharsets.UTF_8));
                     System.out.println(requestURL.toString());
                 }
-                httpGet = new HttpGet(requestURL.toString());
                 try {
-                    CloseableHttpResponse response = httpClient.execute(httpGet);
-                    HttpEntity entity = response.getEntity();
-                    json = JsonParser.parseString(EntityUtils.toString(entity)).toString();
-                    System.out.println(json);
+                    json = org.apache.http.client.fluent.Request.Get(requestURL.toString()).execute().returnContent().asString();
+
                     if (request.error.checkError(json))
                     {
                         if (request.error_message!=null) {
@@ -128,12 +115,9 @@ public class Executer {
                         mpeBuilder.addBinaryBody(parameter.field, file);
                     }
                 }
-                httpPost = new HttpPost(requestURL.toString());
-                    httpPost.setEntity(mpeBuilder.build());
-                    try {
-                        CloseableHttpResponse response2 = httpClient.execute(httpPost);
-                        HttpEntity entity2 = response2.getEntity();
-                        json = EntityUtils.toString(entity2);
+                try
+                {
+                    json = org.apache.http.client.fluent.Request.Post(requestURL.toString()).body(mpeBuilder.build()).execute().returnContent().asString();
                         if (request.error.checkError(json))
                         {
                             if (request.error_message!=null) {
